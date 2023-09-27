@@ -6,11 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "BaseCharacter.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Animation/AnimMontage.h"
-#include "Animation/AnimBlueprint.h"
-#include "Animation/AnimInstance.h"
+#include "TPGameInstance.h"
+#include "Engine/World.h"
 
 void AMainPlayerController::BeginPlay()
 {
@@ -31,50 +28,31 @@ void AMainPlayerController::BeginPlay()
 		}
 	}
 
+	GetWorldTimerManager().SetTimer(MyHandle, this, &AMainPlayerController::InitCharacter, 1.0f, false);
+}
 
+void AMainPlayerController::InitCharacter()
+{
 	GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
-}
 
-void AMainPlayerController::ReqSetMainCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle)
-{
-	RecSetMainCharacter(skeletalMesh, animBp, firstAttackMontage, secondAttackMontage, thirdAttackMontage, fourthAttackMontage, levelStartMontage, maxHp, damage, speed, capsuleHeight, capsuleRadius, boxCollisionExt, hitParticle);
-}
+	UTPGameInstance* GI = Cast<UTPGameInstance>(GetWorld()->GetGameInstance());
 
-void AMainPlayerController::RecSetMainCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle)
-{
-	ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
-
-	if (!MyChar)
+	if (!(GI->MyCharacter))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("!MyCharacter"));
 		return;
+	}
 
-	MyChar->GetMesh()->SetSkeletalMesh(skeletalMesh);
-	MyChar->GetMesh()->SetAnimInstanceClass(animBp->GetAnimBlueprintGeneratedClass());
-	MyChar->GetMesh()->SetRelativeLocation(FVector(0, 0, capsuleHeight * -1));
+	ABaseCharacter* ABC = Cast<ABaseCharacter>(GetPawn());
 
-	MyChar->FirstAttackMontage = firstAttackMontage;
-	MyChar->SecondAttackMontage = secondAttackMontage;
-	MyChar->ThirdAttackMontage = thirdAttackMontage;
-	MyChar->FourthAttackMontage = fourthAttackMontage;
-	MyChar->LevelStartMontage = levelStartMontage;
-	MyChar->MaxHp = maxHp;
-	MyChar->Damage = damage;
-	MyChar->HitParticle = hitParticle;
-	MyChar->CurHp = maxHp;
-
-	UCapsuleComponent* CapsuleComp = MyChar->GetCapsuleComponent();
-
-	if (!CapsuleComp)
+	if (!ABC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("!ABC"));
 		return;
+	}
 
-	CapsuleComp->SetCapsuleHalfHeight(capsuleHeight);
-	CapsuleComp->SetCapsuleRadius(capsuleRadius);
+	ABC->ReqSetCharacter(GI->MyCharacter->SkeletalMesh, GI->MyCharacter->AnimBP, GI->MyCharacter->FirstAttackMontage, GI->MyCharacter->SecondAttackMontage, GI->MyCharacter->ThirdAttackMontage, GI->MyCharacter->FourthAttackMontage, GI->MyCharacter->LevelStartMontage, GI->MyCharacter->MaxHp, GI->MyCharacter->Damage, GI->MyCharacter->Speed, GI->MyCharacter->CapsuleHeight, GI->MyCharacter->CapsuleRadius, GI->MyCharacter->BoxCollisionExt, GI->MyCharacter->HitParticle);
 
-
-	UCharacterMovementComponent* CharacterMovementComponent = MyChar->GetCharacterMovement();
-
-	if (!CharacterMovementComponent)
-		return;
-
-	CharacterMovementComponent->MaxWalkSpeed = speed;
+	ABC->ReqSetWeapon();
 }

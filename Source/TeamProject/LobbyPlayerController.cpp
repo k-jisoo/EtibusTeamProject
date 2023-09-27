@@ -4,10 +4,6 @@
 #include "LobbyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "LobbyUserWidget.h"
-#include "BaseCharacter.h"
-#include "Animation/AnimMontage.h"
-#include "Animation/AnimBlueprint.h"
-#include "Animation/AnimInstance.h"
 
 void ALobbyPlayerController::BeginPlay()
 {
@@ -59,36 +55,5 @@ void ALobbyPlayerController::S2C_SendMessage_Implementation(FText const& Message
         return;
 
     Widget->AddMessage(Message);
-}
-
-void ALobbyPlayerController::ReqSetLobbyCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp)
-{
-    RecSetLobbyCharacter(skeletalMesh, animBp);
-}
-
-void ALobbyPlayerController::RecSetLobbyCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp)
-{
-    ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
-
-    if (!MyChar)
-        return;
-
-    MyChar->GetMesh()->SetSkeletalMesh(skeletalMesh);
-    MyChar->GetMesh()->SetAnimInstanceClass(animBp->GetAnimBlueprintGeneratedClass());
-}
-
-void ALobbyPlayerController::ReqPlayAnimMontage_Implementation(UAnimMontage* levelStartMontage)
-{
-    RecPlayAnimMontage(levelStartMontage);
-}
-
-void ALobbyPlayerController::RecPlayAnimMontage_Implementation(UAnimMontage* levelStartMontage)
-{
-    ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
-
-    if (!MyChar)
-        return;
-
-    MyChar->PlayAnimMontage(levelStartMontage);
 }
 

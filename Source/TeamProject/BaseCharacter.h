@@ -25,7 +25,46 @@ struct FST_Character : public FTableRowBase
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ACharacter> CharacterBp;
+	USkeletalMesh* SkeletalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimBlueprint* AnimBP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* LevelStartMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* FirstAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* SecondAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* ThirdAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* FourthAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxHp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CapsuleHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CapsuleRadius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector BoxCollisionExt;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* HitParticle;
 };
 
 UCLASS()
@@ -71,13 +110,22 @@ public:
 	void SetInputPossible();
 
 	UFUNCTION(Server, Reliable)
-	void ReqSetCharacter();
+	void ReqSetLobbyCharacter(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void RecSetCharacter();
+	void SetLobbyCharacter(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP);
 
+	UFUNCTION(Server, Reliable)
+	void ReqSetCharacter(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle);
 
-	void SetWeapon();
+	UFUNCTION(NetMulticast, Reliable)
+	void RecSetCharacter(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle);
+
+	UFUNCTION(Server, Reliable)
+	void ReqSetWeapon();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecSetWeapon();
 
 	UFUNCTION(Server, Reliable)
 	void ReqPlayAnimMontage(UAnimMontage* animMontage);
@@ -85,71 +133,63 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientPlayAnimMontage(UAnimMontage* animMontage);
 
+	UFUNCTION(Server, Reliable)
+	void ReqLog(const FString& message);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientLog(const FString& message);
+
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USpringArmComponent* SpringArm;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* Camera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Move;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Attack;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Look;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Jump;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* LevelStartMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* FirstAttackMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* SecondAttackMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* ThirdAttackMontage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* FourthAttackMontage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	AWeapon* Weapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	UParticleSystem* HitParticle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	bool IsAttacking;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	bool IsSaveAttack;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	bool IsInputPossible;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	int AttackCount;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	float Damage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	float MaxHp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	float CurHp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	FVector BoxCollisionExt;
-
 	FST_Character* ST_Character;
 
 	FTimerHandle MyTimerHandle;
+public:
+	bool IsAttacking;
+	bool IsSaveAttack;
+	bool IsInputPossible;
+	int AttackCount;
+	float Damage;
+	float MaxHp;
+	float CurHp;
+
+	FString Message;
 };

@@ -6,8 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "LobbyPlayerController.generated.h"
 
-class UAnimBlueprint;
-class UAnimMontage;
 /**
  * 
  */
@@ -30,28 +28,6 @@ public:
 	void S2C_SendMessage(FText const& Message);  //È£Ãâ¿ë -> Network -> RPC
 	void S2C_SendMessage_Implementation(FText const& Message);
 
-
-	UFUNCTION(Server, Reliable)
-	void ReqSetLobbyCharacter(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp);
-
-	void ReqSetLobbyCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp);
-
-	UFUNCTION(Client, Reliable)
-	void RecSetLobbyCharacter(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp);
-
-	void RecSetLobbyCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp);
-
-	UFUNCTION(Server, Reliable)
-	void ReqPlayAnimMontage(UAnimMontage* levelStartMontage);
-
-	void ReqPlayAnimMontage_Implementation(UAnimMontage* levelStartMontage);
-
-	UFUNCTION(Client, Reliable)
-	void RecPlayAnimMontage(UAnimMontage* levelStartMontage);
-
-	void RecPlayAnimMontage_Implementation(UAnimMontage* levelStartMontage);
-
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UUserWidget> LobbyWidgetClass;
 
