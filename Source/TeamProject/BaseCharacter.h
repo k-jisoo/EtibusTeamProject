@@ -122,10 +122,10 @@ public:
 	void RecSetCharacter(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle);
 
 	UFUNCTION(Server, Reliable)
-	void ReqSetWeapon();
+	void ReqSetWeapon(FVector boxCollisionExt);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void RecSetWeapon();
+	void RecSetWeapon(FVector boxCollisionExt);
 
 	UFUNCTION(Server, Reliable)
 	void ReqPlayAnimMontage(UAnimMontage* animMontage);

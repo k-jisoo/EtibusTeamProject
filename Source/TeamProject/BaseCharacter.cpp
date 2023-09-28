@@ -259,12 +259,12 @@ void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 	CharacterMovementComponent->MaxWalkSpeed = speed;
 }
 
-void ABaseCharacter::ReqSetWeapon_Implementation()
+void ABaseCharacter::ReqSetWeapon_Implementation(FVector boxCollisionExt)
 {
-	RecSetWeapon();
+	RecSetWeapon(boxCollisionExt);
 }
 
-void ABaseCharacter::RecSetWeapon_Implementation()
+void ABaseCharacter::RecSetWeapon_Implementation(FVector boxCollisionExt)
 {
 	UTPGameInstance* GI = Cast<UTPGameInstance>(GetWorld()->GetGameInstance());
 
@@ -275,10 +275,9 @@ void ABaseCharacter::RecSetWeapon_Implementation()
 
 	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("weaponCollision"));
 
-	FVector Ext = GI->MyCharacter->BoxCollisionExt;
-	Weapon->Box->SetBoxExtent(Ext);
+	Weapon->Box->SetBoxExtent(boxCollisionExt);
 	Weapon->Box->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-	Weapon->Box->SetRelativeLocation(FVector(0.0f, Ext.X, 0.0f));
+	Weapon->Box->SetRelativeLocation(FVector(0.0f, boxCollisionExt.X, 0.0f));
 
 	Weapon->OwnChar = this;
 }

@@ -13,11 +13,4 @@ UCLASS()
 class TEAMPROJECT_API AMainGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
-public:
-	virtual void BeginPlay() override;
-
-	void InitCharacter();
-
-	struct FTimerHandle MyHandle;
 };

@@ -28,7 +28,7 @@ void AMainPlayerController::BeginPlay()
 		}
 	}
 
-	GetWorldTimerManager().SetTimer(MyHandle, this, &AMainPlayerController::InitCharacter, 1.0f, false);
+	GetWorldTimerManager().SetTimer(MyHandle, this, &AMainPlayerController::InitCharacter, 2.0f, false);
 }
 
 void AMainPlayerController::InitCharacter()
@@ -54,5 +54,5 @@ void AMainPlayerController::InitCharacter()
 
 	ABC->ReqSetCharacter(GI->MyCharacter->SkeletalMesh, GI->MyCharacter->AnimBP, GI->MyCharacter->FirstAttackMontage, GI->MyCharacter->SecondAttackMontage, GI->MyCharacter->ThirdAttackMontage, GI->MyCharacter->FourthAttackMontage, GI->MyCharacter->LevelStartMontage, GI->MyCharacter->MaxHp, GI->MyCharacter->Damage, GI->MyCharacter->Speed, GI->MyCharacter->CapsuleHeight, GI->MyCharacter->CapsuleRadius, GI->MyCharacter->BoxCollisionExt, GI->MyCharacter->HitParticle);
 
-	ABC->ReqSetWeapon();
+	ABC->ReqSetWeapon(GI->MyCharacter->BoxCollisionExt);
 }
