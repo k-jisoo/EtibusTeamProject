@@ -35,6 +35,9 @@ public:
 	TArray<class ASkillBase*> RandomSkills;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	TArray<class ASkillBase*> PlayerSkills;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	class AActiveSkillLightning* Lightning;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
@@ -71,7 +74,7 @@ public:
 	void GetSkill(ASkillBase* Skill);
 
 	UFUNCTION()
-	bool IsCanUseLightning();
+	bool IsCanUseSkill(ASkillBase* Skill);
 
 	UFUNCTION()
 	void OnRep_SkillLevel();

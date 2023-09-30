@@ -63,9 +63,4 @@ public:
 public:
 	UFUNCTION()
 	virtual void ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
-
-	UFUNCTION()
-	virtual void SkillLevelUp();
-
-	
 };

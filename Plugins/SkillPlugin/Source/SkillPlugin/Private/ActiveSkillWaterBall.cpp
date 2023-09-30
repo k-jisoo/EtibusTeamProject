@@ -26,7 +26,7 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
-	SkillSize = 0.5;
+	SkillSize = 1;
 	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -100.0f));
 
@@ -37,7 +37,7 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 	SkillMovement->InitialSpeed = 500.0f;
 	SkillMovement->MaxSpeed = 500.0f;
 
-	Damage = 30.0f;
+	Damage = 60.0f;
 
 	Price = 30;
 
@@ -49,11 +49,11 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 
 	SkillDescription = "Blows a spherical ball of water forward, causing great damage to the target.";
 
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_gemstone_10_b.Tex_gemstone_10_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/SkillPlugin/BP_Skills/Thumbnail/Tex_gemstone_10_b.Tex_gemstone_10_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;
-	}*/
+	}
 	
 }
 
@@ -61,7 +61,9 @@ void AActiveSkillWaterBall::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	OnActorBeginOverlap.AddDynamic(this, &AActiveSkillWaterBall::ProcessBeginOverlap);
+
+	SetLifeSpan(5.0f);
 }
 
 void AActiveSkillWaterBall::Tick(float DeltaTime)
@@ -87,21 +89,6 @@ void AActiveSkillWaterBall::ProcessBeginOverlap(AActor* OverlappedActor, AActor*
 		Destroy();
 		// 사라지기 전 파티클 발생 후 사라지기
 	}
-
-	// 스킬 레벨업 확인 용
-	SkillLevelUp();
-}
-
-void AActiveSkillWaterBall::SkillLevelUp()
-{
-	Level += 1;
-	Damage += 30.0f;
-	PartX += 100;
-	PartY += 100;
-	PartZ += 200;
-	SkillSize += 0.5;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 }
 
 void AActiveSkillWaterBall::ApplySkillDamage()

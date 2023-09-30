@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Engine/DataTable.h"
 #include "InputActionValue.h"
+#include "ItemInterface.h"
 #include "BaseCharacter.generated.h"
 
 class USpringArmComponent;
@@ -15,8 +16,11 @@ class UAnimMontage;
 class UAnimBlueprint;
 class USphereComponent;
 class UStaticMeshComponent;
+class UArrowComponent;
 class AWeapon;
 class UParticleSystem;
+
+enum class EItemType : uint8;
 
 USTRUCT(BlueprintType)
 struct FST_Character : public FTableRowBase
@@ -68,7 +72,7 @@ public:
 };
 
 UCLASS()
-class TEAMPROJECT_API ABaseCharacter : public ACharacter
+class TEAMPROJECT_API ABaseCharacter : public ACharacter, public IItemInterface
 {
 	GENERATED_BODY()
 
@@ -83,9 +87,6 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
-		class AController* EventInstigator, AActor* DamageCauser) override;
-
 public:
 	void Look(const FInputActionValue& Value);
 
@@ -96,6 +97,16 @@ public:
 	void StopJump(const FInputActionValue& Value);
 
 	void Attack(const FInputActionValue& Value);
+
+	void UsingSkill_First(const FInputActionValue& Value);
+
+	void UsingSkill_Second(const FInputActionValue& Value);
+
+	void UsingSkill_Third(const FInputActionValue& Value);
+
+	void UsingSkill_Fourth(const FInputActionValue& Value);
+
+	void CloseWidget(const FInputActionValue& Value);
 
 	UFUNCTION(Server, Reliable)
 	void ReqAttack();
@@ -139,12 +150,23 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientLog(const FString& message);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void EventGetItem(EItemType itemType);
+
+	void EventGetItem_Implementation(EItemType itemType) override;
+
+	UFUNCTION()
+	void SpawnSkillActor(int32 indexNum);
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+	UArrowComponent* SkillSpawnPoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Move;
@@ -157,6 +179,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Jump;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_First;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Second;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Third;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Fourth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_OpenWidgetTest;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* LevelStartMontage;
@@ -182,6 +219,20 @@ public:
 	FST_Character* ST_Character;
 
 	FTimerHandle MyTimerHandle;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActiveSkillStorm> StormClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActiveSkillLightning> LightningClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActiveSkillWaterBall> WaterBallClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class APassiveSkillDefenseArea> DefenseAreaClass;
+
 public:
 	bool IsAttacking;
 	bool IsSaveAttack;

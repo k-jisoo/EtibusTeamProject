@@ -30,10 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float Cooldown;
 
-	
-
 	virtual void ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
 
-	virtual void SkillLevelUp() override;
+
 
 };

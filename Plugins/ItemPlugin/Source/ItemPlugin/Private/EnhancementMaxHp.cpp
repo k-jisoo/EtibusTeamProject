@@ -18,11 +18,11 @@ AEnhancementMaxHp::AEnhancementMaxHp()
 
 	price = 10.0f;
 
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_seeds_10_b.Tex_seeds_10_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/ItemPlugin/BP_Items/Thumbnail/Tex_seeds_10_b.Tex_seeds_10_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;
-	}*/
+	}
 }
 
 void AEnhancementMaxHp::BeginPlay()
