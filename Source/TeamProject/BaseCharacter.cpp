@@ -9,7 +9,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Animation/AnimMontage.h"
@@ -19,6 +21,11 @@
 #include "Weapon.h"
 #include "TPGameInstance.h"
 #include "Particles/ParticleSystem.h"
+#include "MainPlayerController.h"
+#include "SkillManagementComponent.h"
+#include "StatManagementComponent.h"
+#include "ActiveSkillStorm.h"
+
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -82,15 +89,99 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Completed, this, &ABaseCharacter::StopJump);
 
 		EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &ABaseCharacter::Attack);
+
+		EnhancedInputComponent->BindAction(IA_Skill, ETriggerEvent::Started, this, &ABaseCharacter::UsingSkill);
+
+		EnhancedInputComponent->BindAction(IA_OpenWidgetTest, ETriggerEvent::Started, this, &ABaseCharacter::CloseWidget);
 	}
 }
 
 
 
-float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void ABaseCharacter::EventGetItem_Implementation(EItemType itemType)
 {
+	AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-	return 0.0f;
+	if (PC)
+	{
+		UStatManagementComponent* StatManager = Cast<UStatManagementComponent>(PC->FindComponentByClass<UStatManagementComponent>());
+
+		if (StatManager)
+		{
+			switch (itemType)
+			{
+			case EItemType::IT_RecoveryHp:
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IT_RecoveryHp"));
+				StatManager->RecurberyHp();
+				break;
+			}
+			case EItemType::IT_RecoveryMp:
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IT_RecoveryMp"));
+				StatManager->RecurberyMp();
+				break;
+			}
+			case EItemType::IT_SpeedUp:
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IT_SpeedUp"));
+				StatManager->BurfSpeed();
+				break;
+			}
+			case EItemType::IT_PowerUp:
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IT_PowerUp"));
+				StatManager->BurfPower();
+				break;
+			}
+			case EItemType::IT_Gold:
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IT_Gold"));
+				PC->Gold += 50;
+				PC->OnUpdateMyGold(PC->Gold);
+				break;
+			}
+			}
+		}
+	}
+}
+
+void ABaseCharacter::SpawnSkillActor()
+{
+	AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+	if (PC)
+	{
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (SkillManager)
+		{
+			if (SkillManager->IsCanUseLightning() == true)
+			{
+				FVector Location = this->GetActorLocation();
+
+				FRotator Rotation = this->GetActorRotation();
+
+				AActiveSkillStorm* storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location, Rotation);
+
+				if (storm)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("%s"), *storm->SkillName);
+					storm->SkillName = "Success Spawn";
+					UE_LOG(LogTemp, Warning, TEXT("%s"), *storm->SkillName);
+					UParticleSystemComponent* ParticleComponent = storm->FindComponentByClass<UParticleSystemComponent>();
+					if (ParticleComponent)
+					{
+						ParticleComponent->Activate();
+					}
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Can not using Skill"));
+			}
+		}
+	}
 }
 
 void ABaseCharacter::Look(const FInputActionValue& Value)
@@ -136,6 +227,21 @@ void ABaseCharacter::StopJump(const FInputActionValue& Value)
 void ABaseCharacter::Attack(const FInputActionValue& Value)
 {
 	ReqAttack();
+}
+
+void ABaseCharacter::UsingSkill(const FInputActionValue& Value)
+{
+	SpawnSkillActor();
+}
+
+void ABaseCharacter::CloseWidget(const FInputActionValue& Value)
+{
+	AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+	if (PC)
+	{
+		PC->CloseSkillShopWidget();
+	}
 }
 
 void ABaseCharacter::ReqAttack_Implementation()

@@ -32,11 +32,11 @@ AActiveSkillLightning::AActiveSkillLightning()
 	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -100.0f));
 
-	/*static ConstructorHelpers::FObjectFinder<UParticleSystemComponent> ParticleAsset(TEXT("/Game/FXVarietyPack/Particles/P_ky_lightning3.P_ky_lightning3"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystemComponent> ParticleAsset(TEXT("/Game/FXVarietyPack/Particles/P_ky_lightning3.P_ky_lightning3"));
 	if (ParticleAsset.Succeeded())
 	{
 		SkillBody = ParticleAsset.Object;
-	}*/
+	}
 
 	SkillMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("SkillMovement"));
 	SkillMovement->SetUpdatedComponent(SkillArea);
@@ -57,7 +57,7 @@ AActiveSkillLightning::AActiveSkillLightning()
 
 	SkillDescription = "To enemies in a wide area to prevent lightning strikes on the front.";
 
-	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_gemstone_07_b.Tex_gemstone_07_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/SkillPlugin/BP_Skills/Thumbnail/Tex_gemstone_07_b.Tex_gemstone_07_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;

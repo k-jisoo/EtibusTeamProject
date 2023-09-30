@@ -40,11 +40,11 @@ APassiveSkillDefenseArea::APassiveSkillDefenseArea()
 
 	SkillDescription = "It is created around the player and inflicts continuous damage to enemies that come within range.";
 
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_gemstone_08_b.Tex_gemstone_08_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/SkillPlugin/BP_Skills/Thumbnail/Tex_gemstone_08_b.Tex_gemstone_08_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;
-	}*/
+	}
 }
 
 void APassiveSkillDefenseArea::BeginPlay()

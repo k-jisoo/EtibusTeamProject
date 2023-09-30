@@ -180,7 +180,7 @@ void USkillManagementComponent::GetSkill(ASkillBase* Skill)
 
 bool USkillManagementComponent::IsCanUseLightning()
 {
-	if(Storm > 0)
+	if(StormLevel > 0)
 	{
 		return true;
 	}

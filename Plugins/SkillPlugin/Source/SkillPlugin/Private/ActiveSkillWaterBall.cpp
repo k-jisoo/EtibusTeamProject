@@ -49,11 +49,11 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 
 	SkillDescription = "Blows a spherical ball of water forward, causing great damage to the target.";
 
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_gemstone_10_b.Tex_gemstone_10_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/SkillPlugin/BP_Skills/Thumbnail/Tex_gemstone_10_b.Tex_gemstone_10_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;
-	}*/
+	}
 	
 }
 
