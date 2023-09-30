@@ -16,7 +16,3 @@ void AActiveSkillBase::Tick(float DeltaTime)
 void AActiveSkillBase::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 }
-
-void AActiveSkillBase::SkillLevelUp()
-{
-}

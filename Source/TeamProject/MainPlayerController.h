@@ -71,7 +71,7 @@ public:
 	class AEnhancementPower* EnhancementPower;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	int32 Gold = 0;
+	int32 Gold = 200;
 
 public:
 	UFUNCTION()

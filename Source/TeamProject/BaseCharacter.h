@@ -16,6 +16,7 @@ class UAnimMontage;
 class UAnimBlueprint;
 class USphereComponent;
 class UStaticMeshComponent;
+class UArrowComponent;
 class AWeapon;
 class UParticleSystem;
 
@@ -97,7 +98,13 @@ public:
 
 	void Attack(const FInputActionValue& Value);
 
-	void UsingSkill(const FInputActionValue& Value);
+	void UsingSkill_First(const FInputActionValue& Value);
+
+	void UsingSkill_Second(const FInputActionValue& Value);
+
+	void UsingSkill_Third(const FInputActionValue& Value);
+
+	void UsingSkill_Fourth(const FInputActionValue& Value);
 
 	void CloseWidget(const FInputActionValue& Value);
 
@@ -149,7 +156,7 @@ public:
 	void EventGetItem_Implementation(EItemType itemType) override;
 
 	UFUNCTION()
-	void SpawnSkillActor();
+	void SpawnSkillActor(int32 indexNum);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -157,6 +164,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+	UArrowComponent* SkillSpawnPoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_Move;
@@ -171,7 +181,16 @@ public:
 	UInputAction* IA_Jump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputAction* IA_Skill;
+	UInputAction* IA_Skill_First;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Second;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Third;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* IA_Skill_Fourth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* IA_OpenWidgetTest;
@@ -204,6 +223,15 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class AActiveSkillStorm> StormClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActiveSkillLightning> LightningClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AActiveSkillWaterBall> WaterBallClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class APassiveSkillDefenseArea> DefenseAreaClass;
 
 public:
 	bool IsAttacking;

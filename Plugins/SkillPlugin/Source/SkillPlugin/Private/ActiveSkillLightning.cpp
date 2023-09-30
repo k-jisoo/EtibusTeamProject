@@ -19,16 +19,16 @@ AActiveSkillLightning::AActiveSkillLightning()
 
 	SkillArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = SkillArea;
-	PartX = 150;
-	PartY = 150;
-	PartZ = 150;
+	PartX = 200;
+	PartY = 200;
+	PartZ = 200;
 	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
 	SkillArea->SetGenerateOverlapEvents(true);
 	SkillArea->SetCollisionProfileName("OverlapAllDynamic");
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
-	SkillSize = 0.5;
+	SkillSize = 1;
 	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -100.0f));
 
@@ -68,8 +68,6 @@ void AActiveSkillLightning::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-
 	OnActorBeginOverlap.AddDynamic(this, &AActiveSkillLightning::ProcessBeginOverlap);
 
 	SetLifeSpan(2.0f);
@@ -96,21 +94,6 @@ void AActiveSkillLightning::ProcessBeginOverlap(AActor* OverlappedActor, AActor*
 		ApplySkillDamage();
 		UE_LOG(LogClass, Warning, TEXT("ProcessBeginOverlap"));
 	}
-
-	// 스킬 레벨업 확인 용
-	SkillLevelUp();
-}
-
-void AActiveSkillLightning::SkillLevelUp()
-{
-	Level += 1;
-	Damage += 30.0f;
-	PartX += 100;
-	PartY += 100;
-	PartZ += 200;
-	SkillSize += 0.5;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 }
 
 void AActiveSkillLightning::ApplySkillDamage()

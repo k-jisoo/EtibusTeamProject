@@ -27,10 +27,12 @@ APassiveSkillDefenseArea::APassiveSkillDefenseArea()
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
+	SkillSize = 1;
+	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
 	SkillBody->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
-	Damage = 50.0f;
+	Damage = 3.0f;
 
 	Price = 50;
 
@@ -51,8 +53,6 @@ void APassiveSkillDefenseArea::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
-
 	OnActorBeginOverlap.AddDynamic(this, &APassiveSkillDefenseArea::ProcessBeginOverlap);
 }
 
@@ -81,9 +81,6 @@ void APassiveSkillDefenseArea::ProcessBeginOverlap(AActor* OverlappedActor, AAct
 		ApplySkillDamage();
 		UE_LOG(LogClass, Warning, TEXT("ProcessBeginOverlap"));
 	}
-
-	// 스킬 레벨업 확인 용
-	SkillLevelUp();
 }
 
 void APassiveSkillDefenseArea::ApplySkillDamage()
@@ -94,15 +91,4 @@ void APassiveSkillDefenseArea::ApplySkillDamage()
 	// 틱데미지 구현
 	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
 	timerManager.SetTimer(Th_ProcessBeginOverlap, this, &APassiveSkillDefenseArea::ApplySkillDamage, 0.5f, false);*/
-}
-
-void APassiveSkillDefenseArea::SkillLevelUp()
-{
-	Level += 1;
-	Damage += 30.0f;
-	PartX += 150;
-	PartY += 150;
-	SkillSize += 0.5;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
 }

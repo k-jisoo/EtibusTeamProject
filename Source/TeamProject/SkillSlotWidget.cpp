@@ -15,12 +15,22 @@ void USkillSlotWidget::BuySkill(ASkillBase* target)
 {
 	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
+	if (target == nullptr)
+	{
+		return;
+	}
+
 	if (PC)
 	{
 		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
 
 		if (SkillManager)
-		{
+		{			
+			if (!SkillManager->PlayerSkills.Contains(target))
+			{
+				SkillManager->PlayerSkills.Add(target);
+			}
+
 			SkillManager->SkillLevelUp(target);
 			UE_LOG(LogTemp, Warning, TEXT("%d"), target->Level);
 			UE_LOG(LogTemp, Warning, TEXT("AddSkillToInventory"));

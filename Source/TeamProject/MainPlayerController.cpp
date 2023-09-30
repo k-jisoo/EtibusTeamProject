@@ -204,16 +204,16 @@ void AMainPlayerController::BindStatManagers()
 	if (statManager)
 	{
 		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxHp);
-		OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
+		// OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
 
 		statManager->Fuc_Dele_UpdateMp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxMp);
-		OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
+		// OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
 
 		statManager->Fuc_Dele_UpdateSpeed.AddDynamic(this, &AMainPlayerController::OnUpdateMySpeed);
-		OnUpdateMySpeed(StatManager->Speed);
+		// OnUpdateMySpeed(StatManager->Speed);
 
 		statManager->Fuc_Dele_UpdatePower.AddDynamic(this, &AMainPlayerController::OnUpdateMyPower);
-		OnUpdateMyPower(StatManager->Power);
+		// OnUpdateMyPower(StatManager->Power);
 	}
 
 	FTimerManager& timerManager = GetWorld()->GetTimerManager();

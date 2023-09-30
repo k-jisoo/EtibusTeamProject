@@ -25,6 +25,4 @@ public:
 public:
 
 	virtual void ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor) override;
-
-	virtual void SkillLevelUp() override;
 };
