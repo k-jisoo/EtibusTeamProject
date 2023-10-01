@@ -29,9 +29,3 @@ void ASkillBase::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor
 {
 }
 
-void ASkillBase::SkillLevelUp()
-{
-
-}
-
-

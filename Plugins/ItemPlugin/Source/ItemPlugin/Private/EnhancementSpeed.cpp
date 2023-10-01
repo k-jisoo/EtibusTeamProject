@@ -18,11 +18,11 @@ AEnhancementSpeed::AEnhancementSpeed()
 
 	price = 10.0f;
 
-	/*static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/Game/CraftResourcesIcons/Textures/Tex_seeds_06_b.Tex_seeds_06_b"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> Thumbnail(TEXT("/ItemPlugin/BP_Items/Thumbnail/Tex_seeds_06_b.Tex_seeds_06_b"));
 	if (Thumbnail.Succeeded())
 	{
 		SkillThumbnail = Thumbnail.Object;
-	}*/
+	}
 }
 
 void AEnhancementSpeed::BeginPlay()

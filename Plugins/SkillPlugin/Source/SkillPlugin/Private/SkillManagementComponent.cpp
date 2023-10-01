@@ -178,16 +178,21 @@ void USkillManagementComponent::GetSkill(ASkillBase* Skill)
 	}
 }
 
-bool USkillManagementComponent::IsCanUseLightning()
+bool USkillManagementComponent::IsCanUseSkill(ASkillBase* Skill)
 {
-	if(Storm > 0)
+	if (Skill == nullptr)
+	{
+		return false;
+	}
+
+	if (GetSkillLevel(Skill) > 0)
 	{
 		return true;
 	}
 	else
 	{
 		return false;
-	}	
+	}
 }
 
 void USkillManagementComponent::OnRep_SkillLevel()

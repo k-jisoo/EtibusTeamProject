@@ -27,10 +27,7 @@ public:
 
 	void ApplySkillDamage();
 
-	virtual void SkillLevelUp() override;
-
 	FTimerHandle Th_ProcessBeginOverlap;
-
 
 	AActor* Target;
 };
