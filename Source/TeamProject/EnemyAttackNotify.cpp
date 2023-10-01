@@ -44,13 +44,14 @@ void UEnemyAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
         AActor* HitActor = HitResult.GetActor();
         HitLocation = HitResult.ImpactPoint;
 
-        UE_LOG(LogTemp, Warning, TEXT("sss"));
+        UE_LOG(LogTemp, Warning, TEXT("apply Damage"));
 
         // ApplyDamage
         // 여기에서 충돌한 객체와 위치에 대한 처리를 수행할 수 있습니다.
     }
     else
     {
+        UE_LOG(LogTemp, Warning, TEXT("Not Attack"));
         // 충돌하지 않은 경우 처리
     }
 

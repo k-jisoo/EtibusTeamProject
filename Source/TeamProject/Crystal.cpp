@@ -3,7 +3,9 @@
 
 #include "Crystal.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Enemy.h"
 
 // Sets default values
 ACrystal::ACrystal()
@@ -13,9 +15,17 @@ ACrystal::ACrystal()
 
 	//
 	
-	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+	/*Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = Box;
-	Box->SetBoxExtent(FVector(130.f, 110.f, 250.f));
+	Box->SetBoxExtent(FVector(130.f, 110.f, 250.f));*/
+
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
+	RootComponent = Capsule;
+	Capsule->SetCapsuleRadius(150.f);
+	Capsule->SetCapsuleHalfHeight(300.f);
+
+	
+	
 
 	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
 	Body->SetupAttachment(Box);
@@ -57,4 +67,6 @@ float ACrystal::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 	return 0.0f;
 }
+
+
 

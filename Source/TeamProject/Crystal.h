@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UBoxComponent* Box;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UCapsuleComponent* Capsule;
 
 
 //데미지 관련 로직

@@ -16,6 +16,8 @@ UBTTackAttack::UBTTackAttack()
 
 EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+
+
 	AEnemyAIController* Controller = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
 
 	AEnemy* me = Cast<AEnemy>(Controller->GetPawn());
@@ -42,13 +44,12 @@ EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	bAttackPlay = anim->bAttackPlay;
 
 	if (distance > 100.0f || Target == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("distance = %f"), distance);
+		
 		Controller->GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(EEnemyState::Move));
 		return EBTNodeResult::Failed;
 	}
 
 	anim->PlayAttackMontage();
 	return EBTNodeResult::Succeeded;
+
 }
-
-

@@ -41,6 +41,7 @@ AEnemyAIController::AEnemyAIController()
 	SetPerceptionSystem();
 
 	SetAttackSystem();
+
 }
 
 void AEnemyAIController::OnPossess(APawn* InPawn)
@@ -83,7 +84,7 @@ void AEnemyAIController::SetPerceptionSystem()
 	SightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	SightConfig->SightRadius = 500.0f;
 	SightConfig->LoseSightRadius = SightConfig->SightRadius + 50.0f;
-	SightConfig->PeripheralVisionAngleDegrees = 90.0f;
+	SightConfig->PeripheralVisionAngleDegrees = 180.0f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
@@ -95,12 +96,13 @@ void AEnemyAIController::SetPerceptionSystem()
 	AttackConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("AttackConfig"));
 	AttackConfig->SightRadius = 100.0f;
 	AttackConfig->LoseSightRadius = AttackConfig->SightRadius;
-	AttackConfig->PeripheralVisionAngleDegrees = 90.0f;
+	AttackConfig->PeripheralVisionAngleDegrees = 180.0f;
 	AttackConfig->DetectionByAffiliation.bDetectEnemies = true;
 	AttackConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	AttackConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	AttackPerception->ConfigureSense(*AttackConfig);
 	AttackPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetAttack);
+
 }
 
 void AEnemyAIController::SetAttackSystem()
@@ -116,10 +118,13 @@ void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimu
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) 
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("tag = %s"), Tag);
 		if (Tag == "Player")
 		{
 			UpdatedTarget(actor);
+		}
+		if (Tag == "Crystal")
+		{
+			
 		}
 	}
 	
@@ -127,13 +132,11 @@ void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimu
 
 void AEnemyAIController::OnTargetAttack(AActor* actor, FAIStimulus const Stimulus)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnTargetAttack"));
-
 	// 가까운 공격범위 내에 플래이어 발견시 공격
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) {
 		if (Tag == "Player") {
-			
+			UE_LOG(LogTemp, Warning, TEXT("Player?"));
 			BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Attack));
 			//BlackboardComp->SetValueAsObject(TargetKey, actor);
 		}
