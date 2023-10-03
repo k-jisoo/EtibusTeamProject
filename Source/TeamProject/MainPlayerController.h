@@ -41,6 +41,9 @@ public:
 	UUserWidget* SkillShopWidget;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	TArray<class ASkillBase*> AllSkillDatas;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	TArray<class ASkillBase*> PlayerSkills;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
@@ -93,12 +96,12 @@ public:
 	void BindStatManagers();
 
 	UFUNCTION()
-	void AddSkillDataToSkillManager(TArray<class ASkillBase*>& SkillDatas);
+	void AddSkillDataToSkillManager(TArray<class ASkillBase*>& skillDatas);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateSkills(const TArray<class ASkillBase*>& SkillDatas);
+	void OnUpdateSkills(const TArray<class ASkillBase*>& skillDatas);
 
-	void OnUpdateSkills_Implementation(const TArray<class ASkillBase*>& SkillDatas);
+	void OnUpdateSkills_Implementation(const TArray<class ASkillBase*>& skillDatas);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateEnhancementObjs(const TArray<class AStatEnhancementObjectBase*>& objDatas);
@@ -106,9 +109,9 @@ public:
 	void OnUpdateEnhancementObjs_Implementation(const TArray<class AStatEnhancementObjectBase*>& objDatas);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateMySkillLevel(const TArray<class ASkillBase*>& SkillDatas);
+	void OnUpdateMySkillLevel(const TArray<class ASkillBase*>& skillDatas);
 
-	void OnUpdateMySkillLevel_Implementation(const TArray<class ASkillBase*>& SkillDatas);
+	void OnUpdateMySkillLevel_Implementation(const TArray<class ASkillBase*>& skillDatas);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateMyMaxHp(float CurHp, float MaxHp);
@@ -135,6 +138,11 @@ public:
 
 	void OnUpdateMyGold_Implementation(int32 coin);
 
+	UFUNCTION(BlueprintCallable, Category = "Data")
+	void GetSkill(ASkillBase* Skill);
+
+	UFUNCTION()
+	bool IsCanUseSkill(ASkillBase* Skill);
 
 	FTimerHandle th_BindMyStatManager;
 };

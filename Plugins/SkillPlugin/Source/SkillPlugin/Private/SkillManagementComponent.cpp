@@ -26,7 +26,7 @@ USkillManagementComponent::USkillManagementComponent()
 void USkillManagementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SkillDatas.Empty();
 
 	Lightning = NewObject<AActiveSkillLightning>(ASkillBase::StaticClass(), AActiveSkillLightning::StaticClass());
@@ -43,6 +43,8 @@ void USkillManagementComponent::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Storm->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(WaterBall->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(DefenseArea->SkillName));
+
+	
 }
 
 
@@ -66,8 +68,12 @@ void USkillManagementComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 {	
+	if (targetSkill == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("targetSkill is null"));
+		return;
+	}
 
-	
 	if (targetSkill == Lightning)
 	{
 		LightningLevel += 1;
@@ -84,17 +90,12 @@ void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 	{
 		DefenseAreaLevel += 1;
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SKill Level Up fail"));
+	}
 
 	OnRep_SkillLevel();
-
-	/*for (int i = 0; i < SkillDatas.Num(); i++)
-	{
-		if (SkillDatas[i]->SkillName == targetSkill->SkillName)
-		{
-			SkillDatas[i]->Level += 1;
-			UE_LOG(LogTemp, Warning, TEXT("LevelUp"));
-		}
-	}*/
 }
 
 float USkillManagementComponent::GetSkillLevel(ASkillBase* targetSkill)
@@ -157,50 +158,13 @@ TArray<class ASkillBase*> USkillManagementComponent::GetRandomSkills()
 	return RandomSkills;
 }
 
-
-
-void USkillManagementComponent::GetSkill(ASkillBase* Skill)
-{
-	// 스킬 배열에 없으면 추가, 있으면 레벨 증가
-
-	if (Skill == nullptr)
-	{
-		return;
-	}
-	
-	if (SkillDatas.Find(Skill) == false)
-	{
-		SkillDatas.Add(Skill);
-	}
-	else
-	{
-		Skill->Level += 1;
-	}
-}
-
-bool USkillManagementComponent::IsCanUseSkill(ASkillBase* Skill)
-{
-	if (Skill == nullptr)
-	{
-		return false;
-	}
-
-	if (GetSkillLevel(Skill) > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void USkillManagementComponent::OnRep_SkillLevel()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_SkillLevel"));
 	if (Fuc_Dele_UpdateSkillLevel.IsBound())
 		Fuc_Dele_UpdateSkillLevel.Broadcast(SkillDatas);
 }
+
 
 
 
