@@ -371,7 +371,7 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
@@ -386,7 +386,7 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
@@ -405,7 +405,7 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
@@ -420,7 +420,7 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
@@ -439,7 +439,7 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);
@@ -454,7 +454,7 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);
