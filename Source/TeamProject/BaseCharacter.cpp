@@ -28,7 +28,7 @@
 #include "ActiveSkillLightning.h"
 #include "ActiveSkillWaterBall.h"
 #include "PassiveSkillDefenseArea.h"
-
+#include "Net/UnrealNetwork.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -54,6 +54,8 @@ ABaseCharacter::ABaseCharacter()
 	IsSaveAttack = false;
 	AttackCount = 0;
 	IsInputPossible = true;
+
+	bReplicates = true;
 }
 
 void ABaseCharacter::BeginPlay()
@@ -109,7 +111,15 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABaseCharacter, StormClass);
+	DOREPLIFETIME(ABaseCharacter, LightningClass);
+	DOREPLIFETIME(ABaseCharacter, WaterBallClass);
+	DOREPLIFETIME(ABaseCharacter, DefenseAreaClass);
 
+}
 
 void ABaseCharacter::EventGetItem_Implementation(EItemType itemType)
 {
@@ -157,119 +167,137 @@ void ABaseCharacter::EventGetItem_Implementation(EItemType itemType)
 			}
 		}
 	}
+
 }
 
-void ABaseCharacter::SpawnSkillActor(int32 indexNum)
+void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 {
-	AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	if (PC)
 	{
 		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
 
 		if (SkillManager)
-		{			
-			if (SkillManager->IsCanUseSkill(SkillManager->PlayerSkills[indexNum]))
+		{
+			FVector Location = SkillSpawnPoint->GetComponentLocation();
+
+			FRotator Rotation = SkillSpawnPoint->GetComponentRotation();
+
+			FVector ForwardVector = Rotation.Vector();
+
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->SkillName);
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->GetName());
+			return;
+			if (spawnSkill->SkillName == "Fire Storm")
 			{
-				FVector Location = SkillSpawnPoint->GetComponentLocation();
+				AActiveSkillStorm* storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location + (ForwardVector * 150 * SkillManager->StormLevel), Rotation);
 
-				FRotator Rotation = SkillSpawnPoint->GetComponentRotation();
-
-				FVector ForwardVector = Rotation.Vector();
-
-				if (SkillManager->PlayerSkills[indexNum]->SkillName == "Fire Storm")
+				if (storm)
 				{
-					AActiveSkillStorm* storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location + (ForwardVector * 150 * SkillManager->StormLevel), Rotation);
-
-					if (storm)
+					storm->Damage *= SkillManager->StormLevel;
+					storm->PartX *= SkillManager->StormLevel;
+					storm->PartY *= SkillManager->StormLevel;
+					storm->PartZ *= SkillManager->StormLevel;
+					storm->SkillSize *= SkillManager->StormLevel;
+					storm->SkillArea->SetBoxExtent(FVector(storm->PartX, storm->PartY, storm->PartZ));
+					storm->SkillBody->SetRelativeScale3D(FVector(storm->SkillSize, storm->SkillSize, storm->SkillSize));
+					UParticleSystemComponent* ParticleComponent = storm->FindComponentByClass<UParticleSystemComponent>();
+					if (ParticleComponent)
 					{
-						storm->Damage *= SkillManager->StormLevel;
-						storm->PartX *= SkillManager->StormLevel;
-						storm->PartY *= SkillManager->StormLevel;
-						storm->PartZ *= SkillManager->StormLevel;
-						storm->SkillSize *= SkillManager->StormLevel;
-						storm->SkillArea->SetBoxExtent(FVector(storm->PartX, storm->PartY, storm->PartZ));
-						storm->SkillBody->SetRelativeScale3D(FVector(storm->SkillSize, storm->SkillSize, storm->SkillSize));
-						UParticleSystemComponent* ParticleComponent = storm->FindComponentByClass<UParticleSystemComponent>();
-						if (ParticleComponent)
-						{
-							ParticleComponent->Activate();
-						}
-						UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->StormLevel);
+						ParticleComponent->Activate();
 					}
+					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->StormLevel);
+					storm->SetActorHiddenInGame(false);
 				}
-				else if (SkillManager->PlayerSkills[indexNum]->SkillName == "Lightning")
-				{
-					AActiveSkillLightning* lightning = GetWorld()->SpawnActor<AActiveSkillLightning>(LightningClass, Location + (ForwardVector * 100 * SkillManager->LightningLevel), Rotation);
-
-					if (lightning)
-					{
-						lightning->Damage *= SkillManager->LightningLevel;
-						lightning->PartX *= SkillManager->LightningLevel;
-						lightning->PartY *= SkillManager->LightningLevel;
-						lightning->PartZ *= SkillManager->LightningLevel;
-						lightning->SkillSize *= SkillManager->LightningLevel;
-						lightning->SkillArea->SetBoxExtent(FVector(lightning->PartX, lightning->PartY, lightning->PartZ));
-						lightning->SkillBody->SetRelativeScale3D(FVector(lightning->SkillSize, lightning->SkillSize, lightning->SkillSize));
-						UParticleSystemComponent* ParticleComponent = lightning->FindComponentByClass<UParticleSystemComponent>();
-						if (ParticleComponent)
-						{
-							ParticleComponent->Activate();
-						}
-						UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->LightningLevel);
-					}
-				}
-				else if (SkillManager->PlayerSkills[indexNum]->SkillName == "Water Ball")
-				{
-					AActiveSkillWaterBall* waterBall = GetWorld()->SpawnActor<AActiveSkillWaterBall>(WaterBallClass, Location + (ForwardVector * 50 * SkillManager->WaterBallLevel), Rotation);
-
-					if (waterBall)
-					{
-						waterBall->Damage *= SkillManager->WaterBallLevel;
-						waterBall->PartX *= SkillManager->WaterBallLevel;
-						waterBall->PartY *= SkillManager->WaterBallLevel;
-						waterBall->PartZ *= SkillManager->WaterBallLevel;
-						waterBall->SkillSize *= SkillManager->WaterBallLevel;
-						waterBall->SkillArea->SetBoxExtent(FVector(waterBall->PartX, waterBall->PartY, waterBall->PartZ));
-						waterBall->SkillBody->SetRelativeScale3D(FVector(waterBall->SkillSize, waterBall->SkillSize, waterBall->SkillSize));
-						UParticleSystemComponent* ParticleComponent = waterBall->FindComponentByClass<UParticleSystemComponent>();
-						if (ParticleComponent)
-						{
-							ParticleComponent->Activate();
-						}
-						UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->WaterBallLevel);
-					}
-				}
-				else if (SkillManager->PlayerSkills[indexNum]->SkillName == "Defense Area")
-				{
-					APassiveSkillDefenseArea* defenseArea = GetWorld()->SpawnActor<APassiveSkillDefenseArea>(DefenseAreaClass, Location, Rotation);
-
-					if (defenseArea)
-					{
-						defenseArea->Damage *= SkillManager->DefenseAreaLevel;
-						defenseArea->PartX *= SkillManager->DefenseAreaLevel;
-						defenseArea->PartY *= SkillManager->DefenseAreaLevel;
-						defenseArea->PartZ *= SkillManager->DefenseAreaLevel;
-						defenseArea->SkillSize *= SkillManager->DefenseAreaLevel;
-						defenseArea->SkillArea->SetBoxExtent(FVector(defenseArea->PartX, defenseArea->PartY, defenseArea->PartZ));
-						defenseArea->SkillBody->SetRelativeScale3D(FVector(defenseArea->SkillSize, defenseArea->SkillSize, defenseArea->SkillSize));
-						UParticleSystemComponent* ParticleComponent = defenseArea->FindComponentByClass<UParticleSystemComponent>();
-						if (ParticleComponent)
-						{
-							ParticleComponent->Activate();
-						}
-						defenseArea->SkillArea->SetSimulatePhysics(false);
-						AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("spine_01"));
-						UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->DefenseAreaLevel);
-					}
-				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
-			else
+			else if (spawnSkill->SkillName == "Lightning")
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Can not using Skill"));
+				AActiveSkillLightning* lightning = GetWorld()->SpawnActor<AActiveSkillLightning>(LightningClass, Location + (ForwardVector * 100 * SkillManager->LightningLevel), Rotation);
+
+				if (lightning)
+				{
+					lightning->Damage *= SkillManager->LightningLevel;
+					lightning->PartX *= SkillManager->LightningLevel;
+					lightning->PartY *= SkillManager->LightningLevel;
+					lightning->PartZ *= SkillManager->LightningLevel;
+					lightning->SkillSize *= SkillManager->LightningLevel;
+					lightning->SkillArea->SetBoxExtent(FVector(lightning->PartX, lightning->PartY, lightning->PartZ));
+					lightning->SkillBody->SetRelativeScale3D(FVector(lightning->SkillSize, lightning->SkillSize, lightning->SkillSize));
+					UParticleSystemComponent* ParticleComponent = lightning->FindComponentByClass<UParticleSystemComponent>();
+					if (ParticleComponent)
+					{
+						ParticleComponent->Activate();
+					}
+					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->LightningLevel);
+					lightning->SetActorHiddenInGame(false);
+				}
+				SkillManager->UsingSkill(spawnSkill);
+			}
+			else if (spawnSkill->SkillName == "Water Ball")
+			{
+				AActiveSkillWaterBall* waterBall = GetWorld()->SpawnActor<AActiveSkillWaterBall>(WaterBallClass, Location + (ForwardVector * 50 * SkillManager->WaterBallLevel), Rotation);
+
+				if (waterBall)
+				{
+					waterBall->Damage *= SkillManager->WaterBallLevel;
+					waterBall->PartX *= SkillManager->WaterBallLevel;
+					waterBall->PartY *= SkillManager->WaterBallLevel;
+					waterBall->PartZ *= SkillManager->WaterBallLevel;
+					waterBall->SkillSize *= SkillManager->WaterBallLevel;
+					waterBall->SkillArea->SetBoxExtent(FVector(waterBall->PartX, waterBall->PartY, waterBall->PartZ));
+					waterBall->SkillBody->SetRelativeScale3D(FVector(waterBall->SkillSize, waterBall->SkillSize, waterBall->SkillSize));
+					UParticleSystemComponent* ParticleComponent = waterBall->FindComponentByClass<UParticleSystemComponent>();
+					if (ParticleComponent)
+					{
+						ParticleComponent->Activate();
+					}
+					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->WaterBallLevel);
+					waterBall->SetActorHiddenInGame(false);
+				}
+				SkillManager->UsingSkill(spawnSkill);
+			}
+			else if (spawnSkill->SkillName == "Defense Area")
+			{
+				APassiveSkillDefenseArea* defenseArea = GetWorld()->SpawnActor<APassiveSkillDefenseArea>(DefenseAreaClass, Location, Rotation);
+
+				if (defenseArea)
+				{
+					defenseArea->Damage *= SkillManager->DefenseAreaLevel;
+					defenseArea->PartX *= SkillManager->DefenseAreaLevel;
+					defenseArea->PartY *= SkillManager->DefenseAreaLevel;
+					defenseArea->PartZ *= SkillManager->DefenseAreaLevel;
+					defenseArea->SkillSize *= SkillManager->DefenseAreaLevel;
+					defenseArea->SkillArea->SetBoxExtent(FVector(defenseArea->PartX, defenseArea->PartY, defenseArea->PartZ));
+					defenseArea->SkillBody->SetRelativeScale3D(FVector(defenseArea->SkillSize, defenseArea->SkillSize, defenseArea->SkillSize));
+					UParticleSystemComponent* ParticleComponent = defenseArea->FindComponentByClass<UParticleSystemComponent>();
+					if (ParticleComponent)
+					{
+						ParticleComponent->Activate();
+					}
+					defenseArea->SkillArea->SetSimulatePhysics(false);
+					AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("spine_01"));
+					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->DefenseAreaLevel);
+					defenseArea->SetActorHiddenInGame(false);
+				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
 		}
 	}
+	
+}
+
+
+void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
+{
+	if (!spawnSkill)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("spawnSkill"));
+		return;
+	}
+
+	ResSpawnSkillActor(spawnSkill);
 }
 
 void ABaseCharacter::Look(const FInputActionValue& Value)
@@ -318,42 +346,136 @@ void ABaseCharacter::Attack(const FInputActionValue& Value)
 }
 
 void ABaseCharacter::UsingSkill_First(const FInputActionValue& Value)
-{
-	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(this->GetController()->FindComponentByClass<USkillManagementComponent>());
+{	
+	
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if (SkillManager && SkillManager->PlayerSkills[0])
+	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+	if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
 	{
-		SpawnSkillActor(0);
+		// 서버에서는 바로 액터 스폰
+		ReqSpawnSkillActor(PC->PlayerSkills[0]);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+			return;
+	}
+
 }
 
 void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 {
-	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(this->GetController()->FindComponentByClass<USkillManagementComponent>());
-
-	if (SkillManager && SkillManager->PlayerSkills[1])
+	if (HasAuthority())
 	{
-		SpawnSkillActor(1);
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[1]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
+	}
+	else if (!HasAuthority())
+	{
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[1]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
 	}
 }
 
 void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 {
-	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(this->GetController()->FindComponentByClass<USkillManagementComponent>());
-
-	if (SkillManager && SkillManager->PlayerSkills[2])
+	if (HasAuthority())
 	{
-		SpawnSkillActor(2);
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[2]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
+	}
+	else if (!HasAuthority())
+	{
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[2]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
 	}
 }
 
 void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 {
-	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(this->GetController()->FindComponentByClass<USkillManagementComponent>());
-
-	if (SkillManager && SkillManager->PlayerSkills[3])
+	if (HasAuthority())
 	{
-		SpawnSkillActor(3);
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[3]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
+	}
+	else if (!HasAuthority())
+	{
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
+		{
+			// 서버에서는 바로 액터 스폰
+			ReqSpawnSkillActor(PC->PlayerSkills[3]);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
 	}
 }
 

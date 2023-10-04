@@ -55,6 +55,7 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 		SkillThumbnail = Thumbnail.Object;
 	}
 	
+	bReplicates = true;
 }
 
 void AActiveSkillWaterBall::BeginPlay()

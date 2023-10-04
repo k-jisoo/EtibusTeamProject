@@ -61,6 +61,7 @@ AActiveSkillStorm::AActiveSkillStorm()
 		SkillThumbnail = Thumbnail.Object;
 	}
 	
+	bReplicates = true;
 }
 
 void AActiveSkillStorm::BeginPlay()

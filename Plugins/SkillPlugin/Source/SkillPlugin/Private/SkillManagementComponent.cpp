@@ -10,6 +10,9 @@
 #include "Containers/Array.h"
 #include "Net/UnrealNetwork.h"
 #include "Runtime/Core/Public/Math/RandomStream.h"  // 랜덤 함수를 사용하기 위한 헤더
+#include "TimerManager.h"
+#include "GameFramework/Actor.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 USkillManagementComponent::USkillManagementComponent()
@@ -26,7 +29,7 @@ USkillManagementComponent::USkillManagementComponent()
 void USkillManagementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SkillDatas.Empty();
 
 	Lightning = NewObject<AActiveSkillLightning>(ASkillBase::StaticClass(), AActiveSkillLightning::StaticClass());
@@ -43,6 +46,8 @@ void USkillManagementComponent::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Storm->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(WaterBall->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(DefenseArea->SkillName));
+
+	
 }
 
 
@@ -66,8 +71,12 @@ void USkillManagementComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 {	
+	if (targetSkill == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("targetSkill is null"));
+		return;
+	}
 
-	
 	if (targetSkill == Lightning)
 	{
 		LightningLevel += 1;
@@ -84,17 +93,12 @@ void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 	{
 		DefenseAreaLevel += 1;
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SKill Level Up fail"));
+	}
 
 	OnRep_SkillLevel();
-
-	/*for (int i = 0; i < SkillDatas.Num(); i++)
-	{
-		if (SkillDatas[i]->SkillName == targetSkill->SkillName)
-		{
-			SkillDatas[i]->Level += 1;
-			UE_LOG(LogTemp, Warning, TEXT("LevelUp"));
-		}
-	}*/
 }
 
 float USkillManagementComponent::GetSkillLevel(ASkillBase* targetSkill)
@@ -121,6 +125,141 @@ float USkillManagementComponent::GetSkillLevel(ASkillBase* targetSkill)
 	}
 	
 	
+}
+
+bool USkillManagementComponent::GetSkillColldown(ASkillBase* targetSkill)
+{
+	if (targetSkill == Lightning)
+	{
+		if (LightningCooldown == 10.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == WaterBall)
+	{
+		if (WaterBallCooldown == 7.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == Storm)
+	{
+		if (StormCooldown == 15.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == DefenseArea)
+	{
+		if (DefenseAreaCooldown == 5.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void USkillManagementComponent::UsingSkill(ASkillBase* targetSkill)
+{
+	if (targetSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (targetSkill == Lightning)
+	{
+		GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, this, &USkillManagementComponent::LightningCooldownCounter, 1.0f, true);
+		
+		/*GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, [&]()
+			{
+				SkillCooldownCounter(targetSkill);
+			}, 1.0f, true);*/
+	}
+	else if (targetSkill == WaterBall)
+	{
+		GetWorld()->GetTimerManager().SetTimer(WaterBallCooldownHandle, this, &USkillManagementComponent::WaterBallCooldownCounter, 1.0f, true);
+	}
+	else if (targetSkill == Storm)
+	{
+		GetWorld()->GetTimerManager().SetTimer(StormCooldownHandle, this, &USkillManagementComponent::StormCooldownCounter, 1.0f, true);
+	}
+	else if (targetSkill == DefenseArea)
+	{
+		GetWorld()->GetTimerManager().SetTimer(DefenseAreaCooldownHandle, this, &USkillManagementComponent::DefenseAreaCooldownCounter, 1.0f, true);
+	}
+	else
+	{
+		return;
+	}
+	
+}
+
+void USkillManagementComponent::LightningCooldownCounter()
+{
+	LightningCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), LightningCooldown);
+	if (LightningCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(LightningCooldownHandle); // 타이머 중지
+
+		LightningCooldown = 10;
+	}
+}
+
+void USkillManagementComponent::StormCooldownCounter()
+{
+	StormCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), StormCooldown);
+	if (StormCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StormCooldownHandle); // 타이머 중지
+
+		StormCooldown = 15;
+	}
+}
+
+void USkillManagementComponent::WaterBallCooldownCounter()
+{
+	WaterBallCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), WaterBallCooldown);
+	if (WaterBallCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(WaterBallCooldownHandle); // 타이머 중지
+
+		WaterBallCooldown = 7;
+	}
+}
+
+void USkillManagementComponent::DefenseAreaCooldownCounter()
+{
+	DefenseAreaCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), DefenseAreaCooldown);
+	if (DefenseAreaCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DefenseAreaCooldownHandle); // 타이머 중지
+
+		DefenseAreaCooldown = 5;
+	}
 }
 
 TArray<class ASkillBase*> USkillManagementComponent::GetRandomSkills()
@@ -157,50 +296,13 @@ TArray<class ASkillBase*> USkillManagementComponent::GetRandomSkills()
 	return RandomSkills;
 }
 
-
-
-void USkillManagementComponent::GetSkill(ASkillBase* Skill)
-{
-	// 스킬 배열에 없으면 추가, 있으면 레벨 증가
-
-	if (Skill == nullptr)
-	{
-		return;
-	}
-	
-	if (SkillDatas.Find(Skill) == false)
-	{
-		SkillDatas.Add(Skill);
-	}
-	else
-	{
-		Skill->Level += 1;
-	}
-}
-
-bool USkillManagementComponent::IsCanUseSkill(ASkillBase* Skill)
-{
-	if (Skill == nullptr)
-	{
-		return false;
-	}
-
-	if (GetSkillLevel(Skill) > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void USkillManagementComponent::OnRep_SkillLevel()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_SkillLevel"));
 	if (Fuc_Dele_UpdateSkillLevel.IsBound())
 		Fuc_Dele_UpdateSkillLevel.Broadcast(SkillDatas);
 }
+
 
 
 

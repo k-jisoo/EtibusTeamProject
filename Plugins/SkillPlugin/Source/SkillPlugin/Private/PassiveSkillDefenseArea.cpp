@@ -47,6 +47,8 @@ APassiveSkillDefenseArea::APassiveSkillDefenseArea()
 	{
 		SkillThumbnail = Thumbnail.Object;
 	}
+
+	bReplicates = true;
 }
 
 void APassiveSkillDefenseArea::BeginPlay()

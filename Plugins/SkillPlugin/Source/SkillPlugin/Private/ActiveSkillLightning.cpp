@@ -62,6 +62,8 @@ AActiveSkillLightning::AActiveSkillLightning()
 	{
 		SkillThumbnail = Thumbnail.Object;
 	}
+
+	bReplicates = true;
 }
 
 void AActiveSkillLightning::BeginPlay()
@@ -101,3 +103,4 @@ void AActiveSkillLightning::ApplySkillDamage()
 	UGameplayStatics::ApplyDamage(Target, Damage, GetWorld()->GetFirstPlayerController(), nullptr, UDamageType::StaticClass());
 	UE_LOG(LogClass, Warning, TEXT("ApplyDamage"));
 }
+

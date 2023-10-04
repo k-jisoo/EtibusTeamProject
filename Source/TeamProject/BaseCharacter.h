@@ -87,6 +87,8 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
 public:
 	void Look(const FInputActionValue& Value);
 
@@ -155,8 +157,11 @@ public:
 
 	void EventGetItem_Implementation(EItemType itemType) override;
 
-	UFUNCTION()
-	void SpawnSkillActor(int32 indexNum);
+	UFUNCTION(Server, Reliable)
+	void ReqSpawnSkillActor(ASkillBase* spawnSkill);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ResSpawnSkillActor(ASkillBase* spawnSkill);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -221,16 +226,16 @@ public:
 	FTimerHandle MyTimerHandle;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class AActiveSkillStorm> StormClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class AActiveSkillLightning> LightningClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class AActiveSkillWaterBall> WaterBallClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class APassiveSkillDefenseArea> DefenseAreaClass;
 
 public:

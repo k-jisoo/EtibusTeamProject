@@ -31,6 +31,8 @@ AMainPlayerController::AMainPlayerController()
 	SkillManager = CreateDefaultSubobject<USkillManagementComponent>(TEXT("SkillManager"));
 
 	StatManager = CreateDefaultSubobject<UStatManagementComponent>(TEXT("StatManager"));
+
+	// bReplicates = true;
 }
 
 void AMainPlayerController::BeginPlay()
@@ -54,17 +56,17 @@ void AMainPlayerController::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(MyHandle, this, &AMainPlayerController::InitCharacter, 2.0f, false);
 
-	PlayerSkills.Empty();
+	AllSkillDatas.Empty();
 
 	Lightning = NewObject<AActiveSkillLightning>(ASkillBase::StaticClass(), AActiveSkillLightning::StaticClass());
 	Storm = NewObject<AActiveSkillStorm>(ASkillBase::StaticClass(), AActiveSkillStorm::StaticClass());
 	WaterBall = NewObject<AActiveSkillWaterBall>(ASkillBase::StaticClass(), AActiveSkillWaterBall::StaticClass());
 	DefenseArea = NewObject<APassiveSkillDefenseArea>(ASkillBase::StaticClass(), APassiveSkillDefenseArea::StaticClass());
 
-	PlayerSkills.Add(Lightning);
-	PlayerSkills.Add(Storm);
-	PlayerSkills.Add(WaterBall);
-	PlayerSkills.Add(DefenseArea);
+	AllSkillDatas.Add(Lightning);
+	AllSkillDatas.Add(Storm);
+	AllSkillDatas.Add(WaterBall);
+	AllSkillDatas.Add(DefenseArea);
 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Lightning->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Storm->SkillName));
@@ -83,9 +85,20 @@ void AMainPlayerController::BeginPlay()
 	StatEnhancementObjs.Add(EnhancementSpeed);
 	StatEnhancementObjs.Add(EnhancementPower);
 
-	SkillShopWidget = CreateWidget<UUserWidget>(GetWorld(), SkillShopWidgetClass);
+	PlayerSkills.Empty();
 
-	CreateSkillShopWidget();
+	if (IsLocalController())
+	{
+		if (HasAuthority())
+		{
+			ServerCreateAndSyncWidget();
+		}
+		else if(!HasAuthority())
+		{
+			CreateSkillShopWidget();
+		}
+		
+	}
 }
 
 void AMainPlayerController::InitCharacter()
@@ -116,16 +129,30 @@ void AMainPlayerController::InitCharacter()
 
 void AMainPlayerController::CreateSkillShopWidget()
 {
-	SkillShopWidget->AddToViewport();
+	APlayerController* MyController = UGameplayStatics::GetPlayerController(this, 0); // 현재 플레이어 컨트롤러 가져오기
 
-	this->SetInputMode(FInputModeGameAndUI());
-	this->bShowMouseCursor = true;
+	if (MyController)
+	{
+		if (MyController->IsLocalController()) // 현재 컨트롤러가 로컬 플레이어인지 확인
+		{
+			SkillShopWidget = CreateWidget<UUserWidget>(GetWorld(), SkillShopWidgetClass);
 
-	BindSkillSData();
-	BindEnhancedObjData();
-	BindPlayerInfo();
-	OnUpdateMyGold(Gold);
-	BindStatManagers();
+			if (SkillShopWidget)
+			{
+				SkillShopWidget->AddToViewport();
+
+				this->SetInputMode(FInputModeGameAndUI());
+				this->bShowMouseCursor = true;
+
+				BindSkillSData();
+				BindEnhancedObjData();
+				BindPlayerInfo();
+				OnUpdateMyGold(Gold);
+				BindStatManagers();
+			}
+		}
+	}
+
 }
 
 void AMainPlayerController::CloseSkillShopWidget()
@@ -184,13 +211,12 @@ void AMainPlayerController::BindPlayerInfo()
 		USkillManagementComponent* skillManager = Cast<USkillManagementComponent>(GetWorld()->GetFirstPlayerController()->FindComponentByClass<USkillManagementComponent>());
 
 		skillManager->Fuc_Dele_UpdateSkillLevel.AddDynamic(this, &AMainPlayerController::OnUpdateMySkillLevel);
-		OnUpdateMySkillLevel(skillManager->SkillDatas);
 
-		OnUpdateMySkillLevel(PlayerSkills);
+		OnUpdateMySkillLevel(AllSkillDatas);
 
-		for (int i = 0; i < PlayerSkills.Num(); i++)
+		for (int i = 0; i < AllSkillDatas.Num(); i++)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%f"), PlayerSkills[i]->PartZ);
+			UE_LOG(LogTemp, Warning, TEXT("%f"), AllSkillDatas[i]->PartZ);
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("BindEnhancedItemData Success"));
@@ -204,20 +230,20 @@ void AMainPlayerController::BindStatManagers()
 	if (statManager)
 	{
 		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxHp);
-		// OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
+		OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
 
 		statManager->Fuc_Dele_UpdateMp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxMp);
-		// OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
+		OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
 
 		statManager->Fuc_Dele_UpdateSpeed.AddDynamic(this, &AMainPlayerController::OnUpdateMySpeed);
-		// OnUpdateMySpeed(StatManager->Speed);
+		OnUpdateMySpeed(StatManager->Speed);
 
 		statManager->Fuc_Dele_UpdatePower.AddDynamic(this, &AMainPlayerController::OnUpdateMyPower);
-		// OnUpdateMyPower(StatManager->Power);
+		OnUpdateMyPower(StatManager->Power);
 	}
 
-	FTimerManager& timerManager = GetWorld()->GetTimerManager();
-	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);
+	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);*/
 }
 
 void AMainPlayerController::AddSkillDataToSkillManager(TArray<class ASkillBase*>& SkillDatas)
@@ -266,3 +292,103 @@ void AMainPlayerController::OnUpdateMyPower_Implementation(float Power)
 void AMainPlayerController::OnUpdateMyGold_Implementation(int32 coin)
 {
 }
+
+void AMainPlayerController::GetSkill(ASkillBase* Skill)
+{
+	if (Skill == nullptr)
+	{
+		return;
+	}
+
+	if (!PlayerSkills.Contains(Skill))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client: GetSkill"));
+		PlayerSkills.Add(Skill);
+	}
+}
+
+bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
+{
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+	
+	USkillManagementComponent* skillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+	if (PC)
+	{
+		if (skillManager)
+		{
+			if (skillManager->GetSkillLevel(Skill) > 0.0f)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	
+
+	return false;
+}
+
+void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()
+{
+	// 서버에서만 실행되도록 로직 작성
+	if (HasAuthority())
+	{
+		// 실제로 위젯을 생성하는 코드 작성
+		if (!SkillShopWidget)
+		{
+			SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
+			if (SkillShopWidget)
+			{
+				SkillShopWidget->AddToViewport();
+
+				this->SetInputMode(FInputModeGameAndUI());
+				this->bShowMouseCursor = true;
+
+				BindSkillSData();
+				BindEnhancedObjData();
+				BindPlayerInfo();
+				OnUpdateMyGold(Gold);
+				BindStatManagers();
+
+				// 클라이언트에 위젯 생성 완료를 알리기 위한 다른 RPC 함수 호출
+				MulticastOnWidgetCreated();
+			}
+		}
+	}
+}
+
+void AMainPlayerController::MulticastOnWidgetCreated_Implementation()
+{
+	if (!SkillShopWidget)
+	{
+		SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
+		if (SkillShopWidget)
+		{
+			SkillShopWidget->AddToViewport();
+
+			this->SetInputMode(FInputModeGameAndUI());
+			this->bShowMouseCursor = true;
+
+			BindSkillSData();
+			BindEnhancedObjData();
+			BindPlayerInfo();
+			OnUpdateMyGold(Gold);
+			BindStatManagers();
+		}
+	}
+}
+
+void AMainPlayerController::ClientCreateAndSyncWidget_Implementation()
+{
+	if (!HasAuthority())
+	{
+		// 서버에서 위젯을 생성하고 클라이언트에 동기화하는 RPC 호출
+		ServerCreateAndSyncWidget();
+	}
+}
+
+

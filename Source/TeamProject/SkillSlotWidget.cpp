@@ -25,14 +25,9 @@ void USkillSlotWidget::BuySkill(ASkillBase* target)
 		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
 
 		if (SkillManager)
-		{			
-			if (!SkillManager->PlayerSkills.Contains(target))
-			{
-				SkillManager->PlayerSkills.Add(target);
-			}
-
+		{	
 			SkillManager->SkillLevelUp(target);
-			UE_LOG(LogTemp, Warning, TEXT("%d"), target->Level);
+			PC->GetSkill(target);
 			UE_LOG(LogTemp, Warning, TEXT("AddSkillToInventory"));
 
 			PC->Gold -= target->Price;

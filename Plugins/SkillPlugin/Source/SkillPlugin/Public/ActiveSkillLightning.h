@@ -30,4 +30,5 @@ public:
 	AActor* Target;
 
 	void ApplySkillDamage();
+
 };
