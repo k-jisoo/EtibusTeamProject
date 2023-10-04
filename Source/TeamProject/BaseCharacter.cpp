@@ -354,7 +354,7 @@ void ABaseCharacter::UsingSkill_First(const FInputActionValue& Value)
 
 	if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
 	{
-		// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ReqSpawnSkillActor(PC->PlayerSkills[0]);
 	}
 	else
@@ -375,7 +375,7 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
 		}
 		else
@@ -392,7 +392,7 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
 		}
 		else
@@ -413,7 +413,7 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
 		}
 		else
@@ -430,7 +430,7 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
 		}
 		else
@@ -451,7 +451,7 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);
 		}
 		else
@@ -468,7 +468,7 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
-			// ¼­¹ö¿¡¼­´Â ¹Ù·Î ¾×ÅÍ ½ºÆù
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);
 		}
 		else
