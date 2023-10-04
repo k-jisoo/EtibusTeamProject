@@ -104,8 +104,40 @@ void ULobbyUserWidget::OnCommitedText(const FText& Text, ETextCommit::Type Commi
 
 void ULobbyUserWidget::StartGame()
 {
-	GetWorld()->GetNumPlayerControllers();
-	GetWorld()->ServerTravel(TEXT("Main"));
+	int ReadyCnt = 0;
+
+	for (auto Iter = GetWorld()->GetPlayerControllerIterator(); Iter; Iter++)
+	{
+		ALobbyPlayerController* PC = Cast<ALobbyPlayerController>(*Iter);
+
+		if (PC->IsReady == true)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *PC->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("%d"), PC->IsReady);
+			ReadyCnt++;
+		}		
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *PC->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("%d"), PC->IsReady);
+		}
+	}
+
+	if (ReadyCnt == GetWorld()->GetNumPlayerControllers() - 1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Yes Ready"));
+		UE_LOG(LogTemp, Warning, TEXT("%d"), GetWorld()->GetNumPlayerControllers());
+
+		GetWorld()->GetNumPlayerControllers();
+		GetWorld()->ServerTravel(TEXT("Main"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%d"), GetWorld()->GetNumPlayerControllers());
+		UE_LOG(LogTemp, Warning, TEXT("Not Ready"));
+	}
+
+	
 }
 
 void ULobbyUserWidget::Ready()
@@ -115,12 +147,25 @@ void ULobbyUserWidget::Ready()
 	if (!PC)
 		return;
 
+	PC->ReqSetReady();
+
+	UE_LOG(LogTemp, Warning, TEXT("%d"), PC->IsReady);
+
 	ReadyButton->SetVisibility(ESlateVisibility::Collapsed);
 	CancelReadyButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ULobbyUserWidget::CancelReady()
 {
+	ALobbyPlayerController* PC = Cast<ALobbyPlayerController>(GetOwningPlayer());
+
+	if (!PC)
+		return;
+
+	PC->ReqCancelReady();
+
+	UE_LOG(LogTemp, Warning, TEXT("%d"), PC->IsReady);
+
 	ReadyButton->SetVisibility(ESlateVisibility::Visible);
 	CancelReadyButton->SetVisibility(ESlateVisibility::Collapsed);
 }

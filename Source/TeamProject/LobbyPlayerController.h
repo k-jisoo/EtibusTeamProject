@@ -28,9 +28,27 @@ public:
 	void S2C_SendMessage(FText const& Message);  //È£Ãâ¿ë -> Network -> RPC
 	void S2C_SendMessage_Implementation(FText const& Message);
 
+
+
+	UFUNCTION(Server, Reliable)
+	void ReqSetReady();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecSetReady();
+
+	UFUNCTION(Server, Reliable)
+	void ReqCancelReady();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecCancelReady();
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UUserWidget> LobbyWidgetClass;
 
 	UPROPERTY(BlueprintReadWrite)
 	UUserWidget* LobbyWidget;
+
+	UPROPERTY()
+	bool IsReady;
 };
