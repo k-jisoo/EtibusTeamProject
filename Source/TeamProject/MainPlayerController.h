@@ -144,6 +144,17 @@ public:
 	UFUNCTION()
 	bool IsCanUseSkill(ASkillBase* Skill);
 
+	// 클라이언트에서 위젯을 생성하고 서버와 동기화하는 함수
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ClientCreateAndSyncWidget();
+
+	// 위젯이 생성되었음을 클라이언트에 동기화하는 멀티캐스트 RPC 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnWidgetCreated();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ServerCreateAndSyncWidget();
+
 	FTimerHandle th_BindMyStatManager;
 };
 

@@ -32,7 +32,7 @@ AMainPlayerController::AMainPlayerController()
 
 	StatManager = CreateDefaultSubobject<UStatManagementComponent>(TEXT("StatManager"));
 
-	bReplicates = true;
+	// bReplicates = true;
 }
 
 void AMainPlayerController::BeginPlay()
@@ -87,7 +87,18 @@ void AMainPlayerController::BeginPlay()
 
 	PlayerSkills.Empty();
 
-	CreateSkillShopWidget();
+	if (IsLocalController())
+	{
+		if (HasAuthority())
+		{
+			ServerCreateAndSyncWidget();
+		}
+		else if(!HasAuthority())
+		{
+			CreateSkillShopWidget();
+		}
+		
+	}
 }
 
 void AMainPlayerController::InitCharacter()
@@ -118,17 +129,30 @@ void AMainPlayerController::InitCharacter()
 
 void AMainPlayerController::CreateSkillShopWidget()
 {
-	SkillShopWidget = CreateWidget<UUserWidget>(GetWorld(), SkillShopWidgetClass);
-	SkillShopWidget->AddToViewport();
+	APlayerController* MyController = UGameplayStatics::GetPlayerController(this, 0); // 현재 플레이어 컨트롤러 가져오기
 
-	this->SetInputMode(FInputModeGameAndUI());
-	this->bShowMouseCursor = true;
+	if (MyController)
+	{
+		if (MyController->IsLocalController()) // 현재 컨트롤러가 로컬 플레이어인지 확인
+		{
+			SkillShopWidget = CreateWidget<UUserWidget>(GetWorld(), SkillShopWidgetClass);
 
-	BindSkillSData();
-	BindEnhancedObjData();
-	BindPlayerInfo();
-	OnUpdateMyGold(Gold);
-	BindStatManagers();
+			if (SkillShopWidget)
+			{
+				SkillShopWidget->AddToViewport();
+
+				this->SetInputMode(FInputModeGameAndUI());
+				this->bShowMouseCursor = true;
+
+				BindSkillSData();
+				BindEnhancedObjData();
+				BindPlayerInfo();
+				OnUpdateMyGold(Gold);
+				BindStatManagers();
+			}
+		}
+	}
+
 }
 
 void AMainPlayerController::CloseSkillShopWidget()
@@ -307,3 +331,64 @@ bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
 
 	return false;
 }
+
+void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()
+{
+	// 서버에서만 실행되도록 로직 작성
+	if (HasAuthority())
+	{
+		// 실제로 위젯을 생성하는 코드 작성
+		if (!SkillShopWidget)
+		{
+			SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
+			if (SkillShopWidget)
+			{
+				SkillShopWidget->AddToViewport();
+
+				this->SetInputMode(FInputModeGameAndUI());
+				this->bShowMouseCursor = true;
+
+				BindSkillSData();
+				BindEnhancedObjData();
+				BindPlayerInfo();
+				OnUpdateMyGold(Gold);
+				BindStatManagers();
+
+				// 클라이언트에 위젯 생성 완료를 알리기 위한 다른 RPC 함수 호출
+				MulticastOnWidgetCreated();
+			}
+		}
+	}
+}
+
+void AMainPlayerController::MulticastOnWidgetCreated_Implementation()
+{
+	if (!SkillShopWidget)
+	{
+		SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
+		if (SkillShopWidget)
+		{
+			SkillShopWidget->AddToViewport();
+
+			this->SetInputMode(FInputModeGameAndUI());
+			this->bShowMouseCursor = true;
+
+			BindSkillSData();
+			BindEnhancedObjData();
+			BindPlayerInfo();
+			OnUpdateMyGold(Gold);
+			BindStatManagers();
+		}
+	}
+}
+
+void AMainPlayerController::ClientCreateAndSyncWidget_Implementation()
+{
+	if (!HasAuthority())
+	{
+		// 서버에서 위젯을 생성하고 클라이언트에 동기화하는 RPC 호출
+		ServerCreateAndSyncWidget();
+	}
+}
+
+

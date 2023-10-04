@@ -10,6 +10,9 @@
 #include "Containers/Array.h"
 #include "Net/UnrealNetwork.h"
 #include "Runtime/Core/Public/Math/RandomStream.h"  // 랜덤 함수를 사용하기 위한 헤더
+#include "TimerManager.h"
+#include "GameFramework/Actor.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 USkillManagementComponent::USkillManagementComponent()
@@ -122,6 +125,141 @@ float USkillManagementComponent::GetSkillLevel(ASkillBase* targetSkill)
 	}
 	
 	
+}
+
+bool USkillManagementComponent::GetSkillColldown(ASkillBase* targetSkill)
+{
+	if (targetSkill == Lightning)
+	{
+		if (LightningCooldown == 10.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == WaterBall)
+	{
+		if (WaterBallCooldown == 7.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == Storm)
+	{
+		if (StormCooldown == 15.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (targetSkill == DefenseArea)
+	{
+		if (DefenseAreaCooldown == 5.0f)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void USkillManagementComponent::UsingSkill(ASkillBase* targetSkill)
+{
+	if (targetSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (targetSkill == Lightning)
+	{
+		GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, this, &USkillManagementComponent::LightningCooldownCounter, 1.0f, true);
+		
+		/*GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, [&]()
+			{
+				SkillCooldownCounter(targetSkill);
+			}, 1.0f, true);*/
+	}
+	else if (targetSkill == WaterBall)
+	{
+		GetWorld()->GetTimerManager().SetTimer(WaterBallCooldownHandle, this, &USkillManagementComponent::WaterBallCooldownCounter, 1.0f, true);
+	}
+	else if (targetSkill == Storm)
+	{
+		GetWorld()->GetTimerManager().SetTimer(StormCooldownHandle, this, &USkillManagementComponent::StormCooldownCounter, 1.0f, true);
+	}
+	else if (targetSkill == DefenseArea)
+	{
+		GetWorld()->GetTimerManager().SetTimer(DefenseAreaCooldownHandle, this, &USkillManagementComponent::DefenseAreaCooldownCounter, 1.0f, true);
+	}
+	else
+	{
+		return;
+	}
+	
+}
+
+void USkillManagementComponent::LightningCooldownCounter()
+{
+	LightningCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), LightningCooldown);
+	if (LightningCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(LightningCooldownHandle); // 타이머 중지
+
+		LightningCooldown = 10;
+	}
+}
+
+void USkillManagementComponent::StormCooldownCounter()
+{
+	StormCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), StormCooldown);
+	if (StormCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StormCooldownHandle); // 타이머 중지
+
+		StormCooldown = 15;
+	}
+}
+
+void USkillManagementComponent::WaterBallCooldownCounter()
+{
+	WaterBallCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), WaterBallCooldown);
+	if (WaterBallCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(WaterBallCooldownHandle); // 타이머 중지
+
+		WaterBallCooldown = 7;
+	}
+}
+
+void USkillManagementComponent::DefenseAreaCooldownCounter()
+{
+	DefenseAreaCooldown -= 1;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), DefenseAreaCooldown);
+	if (DefenseAreaCooldown <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DefenseAreaCooldownHandle); // 타이머 중지
+
+		DefenseAreaCooldown = 5;
+	}
 }
 
 TArray<class ASkillBase*> USkillManagementComponent::GetRandomSkills()

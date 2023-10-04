@@ -167,16 +167,11 @@ void ABaseCharacter::EventGetItem_Implementation(EItemType itemType)
 			}
 		}
 	}
+
 }
 
 void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
-{	
-
-}
-
-void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 {
-	
 	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	if (PC)
@@ -191,6 +186,9 @@ void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 
 			FVector ForwardVector = Rotation.Vector();
 
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->SkillName);
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->GetName());
+			return;
 			if (spawnSkill->SkillName == "Fire Storm")
 			{
 				AActiveSkillStorm* storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location + (ForwardVector * 150 * SkillManager->StormLevel), Rotation);
@@ -212,6 +210,7 @@ void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->StormLevel);
 					storm->SetActorHiddenInGame(false);
 				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
 			else if (spawnSkill->SkillName == "Lightning")
 			{
@@ -234,6 +233,7 @@ void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->LightningLevel);
 					lightning->SetActorHiddenInGame(false);
 				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
 			else if (spawnSkill->SkillName == "Water Ball")
 			{
@@ -256,6 +256,7 @@ void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->WaterBallLevel);
 					waterBall->SetActorHiddenInGame(false);
 				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
 			else if (spawnSkill->SkillName == "Defense Area")
 			{
@@ -280,9 +281,23 @@ void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->DefenseAreaLevel);
 					defenseArea->SetActorHiddenInGame(false);
 				}
+				SkillManager->UsingSkill(spawnSkill);
 			}
 		}
 	}
+	
+}
+
+
+void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
+{
+	if (!spawnSkill)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("spawnSkill"));
+		return;
+	}
+
+	ResSpawnSkillActor(spawnSkill);
 }
 
 void ABaseCharacter::Look(const FInputActionValue& Value)
@@ -332,46 +347,33 @@ void ABaseCharacter::Attack(const FInputActionValue& Value)
 
 void ABaseCharacter::UsingSkill_First(const FInputActionValue& Value)
 {	
-	if (HasAuthority())
-	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+	
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]))
-		{
-			// 서버에서는 바로 액터 스폰
-			ReqSpawnSkillActor(PC->PlayerSkills[0]);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
-				return;
-		}
+	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+	if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
+	{
+		// 서버에서는 바로 액터 스폰
+		ReqSpawnSkillActor(PC->PlayerSkills[0]);
 	}
 	else
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
-
-		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]))
-		{
-			// 서버에서는 바로 액터 스폰
-			ReqSpawnSkillActor(PC->PlayerSkills[0]);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
-				return;
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+			return;
 	}
-	
+
 }
 
 void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 {
 	if (HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
@@ -382,11 +384,13 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 				return;
 		}
 	}
-	else
+	else if (!HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[1]);
@@ -403,9 +407,11 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 {
 	if (HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
@@ -416,11 +422,13 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 				return;
 		}
 	}
-	else
+	else if (!HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[2]);
@@ -437,9 +445,11 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 {
 	if (HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);
@@ -450,11 +460,13 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 				return;
 		}
 	}
-	else
+	else if (!HasAuthority())
 	{
-		AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
 
-		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]))
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
 			// 서버에서는 바로 액터 스폰
 			ReqSpawnSkillActor(PC->PlayerSkills[3]);

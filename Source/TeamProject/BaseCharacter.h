@@ -157,11 +157,11 @@ public:
 
 	void EventGetItem_Implementation(EItemType itemType) override;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void ResSpawnSkillActor(ASkillBase* spawnSkill);
-
 	UFUNCTION(Server, Reliable)
 	void ReqSpawnSkillActor(ASkillBase* spawnSkill);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ResSpawnSkillActor(ASkillBase* spawnSkill);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")

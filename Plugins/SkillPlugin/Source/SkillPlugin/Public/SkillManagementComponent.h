@@ -58,11 +58,49 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	float WaterBallLevel = 0;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	float LightningCooldown = 10.0f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	float StormCooldown = 15.0f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	float DefenseAreaCooldown = 5.0f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
+	float WaterBallCooldown = 7.0f;
+
 	UFUNCTION()
 	void SkillLevelUp(class ASkillBase* targetSkill);
 
 	UFUNCTION(BlueprintCallable)
 	float GetSkillLevel(class ASkillBase* targetSkill);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetSkillColldown(class ASkillBase* targetSkill);
+
+	UFUNCTION(BlueprintCallable)
+	void UsingSkill(class ASkillBase* targetSkill);
+
+	UFUNCTION(BlueprintCallable)
+	void LightningCooldownCounter();
+
+	UFUNCTION(BlueprintCallable)
+	void StormCooldownCounter();
+
+	UFUNCTION(BlueprintCallable)
+	void WaterBallCooldownCounter();
+
+	UFUNCTION(BlueprintCallable)
+	void DefenseAreaCooldownCounter();
+
+	FTimerHandle LightningCooldownHandle;
+
+	FTimerHandle StormCooldownHandle;
+
+	FTimerHandle WaterBallCooldownHandle;
+
+	FTimerHandle DefenseAreaCooldownHandle;
 
 	UFUNCTION()
 	TArray<class ASkillBase*> GetRandomSkills();
