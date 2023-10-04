@@ -11,7 +11,7 @@ UEnemyAnim::UEnemyAnim()
 
 void UEnemyAnim::OnAttackEndAnimation()
 {
-	bAttackPlay = false;
+	bAttacking = false;
 }
 
 void UEnemyAnim::PlayAttackMontage()
@@ -21,12 +21,6 @@ void UEnemyAnim::PlayAttackMontage()
 
 		Montage_Play(AttackMontage, 1);
 	}
-	
-
-	if (AttackMontage != nullptr) {
-		
-	}
-	
 }
 
 

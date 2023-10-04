@@ -18,7 +18,7 @@ AWeapon::AWeapon()
 	Box = CreateDefaultSubobject<UBoxComponent>(TEXT("Sphere"));
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	Box->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	Box->SetCollisionProfileName(TEXT("Custom"));
+	Box->SetCollisionProfileName(TEXT("Pawn"));
 	Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

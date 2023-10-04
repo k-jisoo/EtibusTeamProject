@@ -37,11 +37,8 @@ AEnemyAIController::AEnemyAIController()
 	}
 
 	//class UEnemyAnim* anim;
-
 	SetPerceptionSystem();
-
-	SetAttackSystem();
-
+	
 }
 
 void AEnemyAIController::OnPossess(APawn* InPawn)
@@ -52,19 +49,21 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	me = Cast<AEnemy>(GetPawn());
 	if (me == nullptr) 
 	{
-		UE_LOG(LogTemp,Warning,TEXT("me == nullptr"));
 		return;
 	}
+
+
+
 	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
 	if (anim != nullptr) 
 	{
-		anim->animState = EEnemyState::Move;
+		anim->animState = EEnemyState::MoveCrystal;
 	}
 	
 	//블랙보드 텀포넌트 기본설정
 	if (UseBlackboard(BBAsset, BlackboardComp))
 	{
-		BlackboardComp->SetValueAsVector(CrysytalVector, FVector(0, 0, 0));
+		BlackboardComp->SetValueAsVector("CrysytalVector", FVector(0, 0, 0));
 		if (!RunBehaviorTree(BTAsset))
 		{
 			return;
@@ -73,17 +72,20 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	}
 
 	// # Ible로 변경 후 자동 Move설정
-	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Move));
+	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Ible));
+
+	
 
 }
 
 void AEnemyAIController::SetPerceptionSystem()
 {
+
 	//플래이어 발견 Perception
 	SightPerception = CreateOptionalDefaultSubobject<UAIPerceptionComponent>(TEXT("SightPerception"));
 	SightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	SightConfig->SightRadius = 500.0f;
-	SightConfig->LoseSightRadius = SightConfig->SightRadius + 50.0f;
+	SightConfig->SightRadius = Sight;
+	SightConfig->LoseSightRadius = SightConfig->SightRadius;
 	SightConfig->PeripheralVisionAngleDegrees = 180.0f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
@@ -94,7 +96,7 @@ void AEnemyAIController::SetPerceptionSystem()
 	//플래이어 공격 범위 Perception
 	AttackPerception = CreateOptionalDefaultSubobject<UAIPerceptionComponent>(TEXT("AttackPerception"));
 	AttackConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("AttackConfig"));
-	AttackConfig->SightRadius = 100.0f;
+	AttackConfig->SightRadius = AttackRange;
 	AttackConfig->LoseSightRadius = AttackConfig->SightRadius;
 	AttackConfig->PeripheralVisionAngleDegrees = 180.0f;
 	AttackConfig->DetectionByAffiliation.bDetectEnemies = true;
@@ -104,13 +106,6 @@ void AEnemyAIController::SetPerceptionSystem()
 	AttackPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetAttack);
 
 }
-
-void AEnemyAIController::SetAttackSystem()
-{
-	
-}
-
-
 
 void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimulus)
 {
@@ -124,7 +119,9 @@ void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimu
 		}
 		if (Tag == "Crystal")
 		{
-			
+			BlackboardComp->SetValueAsEnum("State", static_cast<uint8>(EEnemyState::AttackCrystal));
+			BlackboardComp->SetValueAsObject(TargetKey, actor);
+			Target = actor;
 		}
 	}
 	
@@ -132,13 +129,16 @@ void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimu
 
 void AEnemyAIController::OnTargetAttack(AActor* actor, FAIStimulus const Stimulus)
 {
+	/*if (BlackboardComp->GetValueAsEnum(State) != static_cast<uint8>(EEnemyState::MoveTarget))
+		UE_LOG(LogTemp, Warning, TEXT("GetValueAsEnum(State) != static_cast<uint8>(EEnemyState::MoveTarget)"));
+		return;*/
 	// 가까운 공격범위 내에 플래이어 발견시 공격
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) {
 		if (Tag == "Player") {
-			UE_LOG(LogTemp, Warning, TEXT("Player?"));
-			BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Attack));
-			//BlackboardComp->SetValueAsObject(TargetKey, actor);
+			BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::AttackTarget));
+			BlackboardComp->SetValueAsObject(TargetKey, actor);
+			Target = actor;
 		}
 	}
 }
@@ -146,16 +146,17 @@ void AEnemyAIController::OnTargetAttack(AActor* actor, FAIStimulus const Stimulu
 void AEnemyAIController::UpdatedTarget(AActor* actor)
 {
 	// 한번 발견한 대상을 잊어버리기 까지 쫒아가고 잊어버리면 바로 크리스탈쪽으로 이동하는 로직
+	
 
 	if (BlackboardComp->GetValueAsObject(TargetKey) == nullptr) 
 	{
+		BlackboardComp->SetValueAsEnum("State", static_cast<uint8>(EEnemyState::MoveTarget));
 		BlackboardComp->SetValueAsObject(TargetKey, actor);
 	}
-	else if(actor == BlackboardComp->GetValueAsObject(TargetKey))
+	else if (actor == BlackboardComp->GetValueAsObject(TargetKey))
 	{
-		BlackboardComp->SetValueAsObject(TargetKey, NULL);
+		BlackboardComp->SetValueAsObject(TargetKey, nullptr);
+		BlackboardComp->SetValueAsEnum("State", static_cast<uint8>(EEnemyState::Ible));
 	}
-	else
-	{
-	}
+	
 }

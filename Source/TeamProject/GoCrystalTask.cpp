@@ -9,8 +9,7 @@
 
 UGoCrystalTask::UGoCrystalTask()
 {
-	NodeName = TEXT("GoToCrystal");
-	
+	NodeName = TEXT("BBTackMoveCrystal");
 }
 
 EBTNodeResult::Type UGoCrystalTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -19,11 +18,10 @@ EBTNodeResult::Type UGoCrystalTask::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	if (Controller==nullptr)
 	{
-		
 		return EBTNodeResult::Failed;
 	}
 
-	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Move));
+	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::MoveCrystal));
 
 	return EBTNodeResult::Succeeded;
 

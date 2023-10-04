@@ -4,22 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTackAttack.generated.h"
+#include "BTTaskAttackCrystal.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TEAMPROJECT_API UBTTackAttack : public UBTTaskNode
+class TEAMPROJECT_API UBTTaskAttackCrystal : public UBTTaskNode
 {
 	GENERATED_BODY()
+
 public:
 
-	UBTTackAttack();
+	UBTTaskAttackCrystal();
+
+protected:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 
 	class AEnemyAIController* Controller;
 
-	class UEnemyAnim* anim;
+	class UEnemyAnim* anim;	
+
+	class AEnemy* me;
 };

@@ -4,27 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "EnemyTargetAttackService.generated.h"
+#include "BTServiceAttackCrystal.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TEAMPROJECT_API UEnemyTargetAttackService : public UBTService
+class TEAMPROJECT_API UBTServiceAttackCrystal : public UBTService
 {
 	GENERATED_BODY()
 	
 public:
 
-	UEnemyTargetAttackService();
+	UBTServiceAttackCrystal();
 
 protected:
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	class AEnemyAIController* Controller;
-
-	class UEnemyAnim* anim;
 
 	class AEnemy* me;
 };
