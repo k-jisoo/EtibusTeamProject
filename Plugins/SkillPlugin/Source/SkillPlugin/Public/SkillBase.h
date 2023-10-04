@@ -23,14 +23,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", Replicated)
 	class UBoxComponent* SkillArea;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "component", Replicated)
 	class UParticleSystemComponent* SkillBody;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	float Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
@@ -42,16 +44,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	class UTexture2D* SkillThumbnail;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	double PartX;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	double PartY;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	double PartZ;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	double SkillSize;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")

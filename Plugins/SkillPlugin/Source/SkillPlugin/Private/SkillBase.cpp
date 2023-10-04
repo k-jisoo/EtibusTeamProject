@@ -2,6 +2,7 @@
 
 
 #include "SkillBase.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASkillBase::ASkillBase()
@@ -23,6 +24,18 @@ void ASkillBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ASkillBase, SkillArea);
+	DOREPLIFETIME(ASkillBase, Damage);
+	DOREPLIFETIME(ASkillBase, SkillBody);
+	DOREPLIFETIME(ASkillBase, PartX);
+	DOREPLIFETIME(ASkillBase, PartY);
+	DOREPLIFETIME(ASkillBase, PartZ);
+	DOREPLIFETIME(ASkillBase, SkillSize);
 }
 
 void ASkillBase::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
