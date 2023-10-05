@@ -13,6 +13,7 @@ void USkillSlotWidget::NativeConstruct()
 
 void USkillSlotWidget::BuySkill(ASkillBase* target)
 {
+	
 	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	if (target == nullptr)

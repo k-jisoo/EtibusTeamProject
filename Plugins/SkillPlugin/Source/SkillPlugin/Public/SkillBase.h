@@ -45,16 +45,10 @@ public:
 	class UTexture2D* SkillThumbnail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
-	double PartX;
+	FVector SkillSizeVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
-	double PartY;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
-	double PartZ;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
-	double SkillSize;
+	FVector CollisionSizeVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data", Replicated)
 	FString SkillName;

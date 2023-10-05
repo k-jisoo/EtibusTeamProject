@@ -158,11 +158,13 @@ public:
 	void EventGetItem_Implementation(EItemType itemType) override;
 
 	UFUNCTION(Server, Reliable)
-	void ReqServerSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, double PartX, double PartY, double PartZ, double SkillSize);
+	void ReqServerSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void ResSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, double PartX, double PartY, double PartZ, double SkillSize);
+	void ResSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
+	UFUNCTION()
+	void SpawnActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")

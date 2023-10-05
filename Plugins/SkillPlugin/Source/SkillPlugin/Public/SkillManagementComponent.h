@@ -47,16 +47,16 @@ public:
 	class APassiveSkillDefenseArea* DefenseArea;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
-	float LightningLevel = 0;
+	float LightningLevel;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
-	float StormLevel = 0;
+	float StormLevel;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
-	float DefenseAreaLevel = 0;
+	float DefenseAreaLevel;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
-	float WaterBallLevel = 0;
+	float WaterBallLevel;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
 	float LightningCooldown = 10.0f;

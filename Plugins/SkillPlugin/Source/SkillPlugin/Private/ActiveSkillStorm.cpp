@@ -17,17 +17,17 @@ AActiveSkillStorm::AActiveSkillStorm()
 
 	SkillArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = SkillArea;
-	PartX = 100;
-	PartY = 100;
-	PartZ = 200;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
+
+	CollisionSizeVector = FVector(150, 150, 250);
+	SkillArea->SetBoxExtent(CollisionSizeVector);
 	SkillArea->SetGenerateOverlapEvents(true);
 	SkillArea->SetCollisionProfileName("OverlapAllDynamic");
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
-	SkillSize = 1;
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
+
+	SkillSizeVector = FVector(1, 1, 1);
+	SkillBody->SetRelativeScale3D(SkillSizeVector);
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -200.0f));
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystemComponent> ParticleAsset(TEXT("/Game/FXVarietyPack/Particles/P_ky_fireStorm.P_ky_fireStorm"));
@@ -40,8 +40,8 @@ AActiveSkillStorm::AActiveSkillStorm()
 	SkillMovement->SetUpdatedComponent(SkillArea);
 
 	SkillMovement->ProjectileGravityScale = 0;
-	SkillMovement->InitialSpeed = 300.0f;
-	SkillMovement->MaxSpeed = 300.0f;
+	SkillMovement->InitialSpeed = 500.0f;
+	SkillMovement->MaxSpeed = 500.0f;
 
 	Damage = 5.0f;
 
@@ -70,16 +70,7 @@ void AActiveSkillStorm::BeginPlay()
 
 	OnActorBeginOverlap.AddDynamic(this, &AActiveSkillStorm::ProcessBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AActiveSkillStorm::EndOverlap);
-	
-	if (HasAuthority())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Server::"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Client::"));
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Size = %f"), SkillSize);
+
 
 	SetLifeSpan(10.0f);
 }
@@ -91,8 +82,6 @@ void AActiveSkillStorm::Tick(float DeltaTime)
 
 void AActiveSkillStorm::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (HasAuthority() == false)
-		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("MeshBeginOverlap = %s"), *OtherActor->GetName());
 

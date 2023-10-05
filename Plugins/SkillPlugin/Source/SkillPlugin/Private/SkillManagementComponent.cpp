@@ -47,7 +47,10 @@ void USkillManagementComponent::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(WaterBall->SkillName));
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(DefenseArea->SkillName));
 
-	
+	DefenseAreaLevel = 0;
+	LightningLevel = 0;
+	StormLevel = 0;
+	WaterBallLevel = 0;
 }
 
 
@@ -89,18 +92,22 @@ void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 	if (targetSkill == Lightning)
 	{
 		LightningLevel += 1;
+
 	}
 	else if (targetSkill == WaterBall)
 	{
 		WaterBallLevel += 1;
+
 	}
 	else if (targetSkill == Storm)
 	{
 		StormLevel += 1;
+
 	}
 	else if (targetSkill == DefenseArea)
 	{
 		DefenseAreaLevel += 1;
+
 	}
 	else
 	{
@@ -306,5 +313,7 @@ void USkillManagementComponent::OnRep_SkillLevel()
 	if (Fuc_Dele_UpdateSkillLevel.IsBound())
 		Fuc_Dele_UpdateSkillLevel.Broadcast(SkillDatas);
 }
+
+
 
 

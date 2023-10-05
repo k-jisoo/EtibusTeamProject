@@ -32,10 +32,8 @@ void ASkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASkillBase, SkillArea);
 	DOREPLIFETIME(ASkillBase, Damage);
 	DOREPLIFETIME(ASkillBase, SkillBody);
-	DOREPLIFETIME(ASkillBase, PartX);
-	DOREPLIFETIME(ASkillBase, PartY);
-	DOREPLIFETIME(ASkillBase, PartZ);
-	DOREPLIFETIME(ASkillBase, SkillSize);
+	DOREPLIFETIME(ASkillBase, SkillSizeVector);
+	DOREPLIFETIME(ASkillBase, CollisionSizeVector);
 	DOREPLIFETIME(ASkillBase, SkillName);
 	DOREPLIFETIME(ASkillBase, Price);
 	DOREPLIFETIME(ASkillBase, SkillDescription);
