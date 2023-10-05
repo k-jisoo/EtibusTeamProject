@@ -82,6 +82,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -121,6 +123,16 @@ public:
 	void ResetCombo();
 
 	void SetInputPossible();
+
+	UFUNCTION(Server, Reliable)
+	void ReqDieProcess(USkeletalMeshComponent* skmesh);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecDieProcess(USkeletalMeshComponent* skmesh);
+
+	void SetSpectatorMode();
+
+	APlayerController* GetTargetPlayerController();
 
 	UFUNCTION(Server, Reliable)
 	void ReqSetLobbyCharacter(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP);
@@ -256,9 +268,4 @@ public:
 	bool IsSaveAttack;
 	bool IsInputPossible;
 	int AttackCount;
-	float Damage;
-	float MaxHp;
-	float CurHp;
-
-	FString Message;
 };

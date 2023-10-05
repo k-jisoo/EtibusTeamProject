@@ -25,6 +25,7 @@
 #include "EnhancementPower.h"
 #include "EnhancementSpeed.h"
 #include "BaseCharacter.h"
+#include "MainGameMode.h"
 
 AMainPlayerController::AMainPlayerController()
 {
@@ -32,7 +33,7 @@ AMainPlayerController::AMainPlayerController()
 
 	StatManager = CreateDefaultSubobject<UStatManagementComponent>(TEXT("StatManager"));
 
-	// bReplicates = true;
+	IsAlive = true;
 }
 
 void AMainPlayerController::BeginPlay()
@@ -232,6 +233,8 @@ void AMainPlayerController::BindStatManagers()
 		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxHp);
 		OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
 
+		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyCurHp);
+
 		statManager->Fuc_Dele_UpdateMp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxMp);
 		OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
 
@@ -244,6 +247,34 @@ void AMainPlayerController::BindStatManagers()
 
 	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
 	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);*/
+}
+
+void AMainPlayerController::DieProcess()
+{
+	ABaseCharacter* Char = Cast<ABaseCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+
+	Char->ReqDieProcess(true);
+
+	DisableInput(this);
+
+	IsAlive = false;
+
+	UWorld* World = GetWorld();
+
+	if (!World)
+		return;
+
+	AGameModeBase* CurrentGameMode = UGameplayStatics::GetGameMode(GetWorld());
+
+	if (!CurrentGameMode)
+		return;
+
+	AMainGameMode* GM = Cast<AMainGameMode>(CurrentGameMode);
+
+	if (!GM)
+		return;
+
+	GM->GameOver();
 }
 
 void AMainPlayerController::AddSkillDataToSkillManager(TArray<class ASkillBase*>& SkillDatas)
@@ -275,6 +306,15 @@ void AMainPlayerController::OnUpdateMySkillLevel_Implementation(const TArray<cla
 
 void AMainPlayerController::OnUpdateMyMaxHp_Implementation(float CurHp, float MaxHp)
 {
+}
+
+void AMainPlayerController::OnUpdateMyCurHp(float CurHp, float MaxHp)
+{
+	if (CurHp <= 0)
+	{
+		ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
+		//MyChar->ReqDieProcess();
+	}
 }
 
 void AMainPlayerController::OnUpdateMyMaxMp_Implementation(float CurHp, float MaxHp)

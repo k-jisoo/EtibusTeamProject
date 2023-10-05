@@ -25,6 +25,9 @@ public:
 
 	void InitCharacter();
 
+	UPROPERTY()
+	bool IsAlive;
+
 	struct FTimerHandle MyHandle;
 
 public:
@@ -95,6 +98,8 @@ public:
 	UFUNCTION()
 	void BindStatManagers();
 
+	void DieProcess();
+	
 	UFUNCTION()
 	void AddSkillDataToSkillManager(TArray<class ASkillBase*>& skillDatas);
 
@@ -117,6 +122,8 @@ public:
 	void OnUpdateMyMaxHp(float CurHp, float MaxHp);
 
 	void OnUpdateMyMaxHp_Implementation(float CurHp, float MaxHp);
+
+	void OnUpdateMyCurHp(float CurHp, float MaxHp);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateMyMaxMp(float CurMp, float MaxMp);

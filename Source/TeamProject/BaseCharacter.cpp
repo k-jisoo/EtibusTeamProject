@@ -30,6 +30,9 @@
 #include "PassiveSkillDefenseArea.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "StatManagementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "MainGameMode.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -54,7 +57,7 @@ ABaseCharacter::ABaseCharacter()
 	IsAttacking = false;
 	IsSaveAttack = false;
 	AttackCount = 0;
-	IsInputPossible = true;
+	IsInputPossible = false;
 
 	bReplicates = true;
 }
@@ -63,20 +66,25 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UTPGameInstance* GI = Cast<UTPGameInstance>(GetWorld()->GetGameInstance());
 	
-	//if (!(GI->MyCharacter))
-	//	return;
-	
-	//ReqSetCharacter(GI->MyCharacter->SkeletalMesh, GI->MyCharacter->AnimBP, GI->MyCharacter->FirstAttackMontage, GI->MyCharacter->SecondAttackMontage, GI->MyCharacter->ThirdAttackMontage, GI->MyCharacter->FourthAttackMontage, GI->MyCharacter->LevelStartMontage, GI->MyCharacter->MaxHp, GI->MyCharacter->Damage, GI->MyCharacter->Speed, GI->MyCharacter->CapsuleHeight, GI->MyCharacter->CapsuleRadius, GI->MyCharacter->BoxCollisionExt, GI->MyCharacter->HitParticle);
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetController());
 
-	//SetWeapon();
+	if (!PC)
+		return;
 
-	//Message = FString("First Message");
-	//ReqLog(FString("Second Message"));
+	ReqDieProcess(GetMesh());
+}
 
-	//UE_LOG(LogTemp, Warning, TEXT("WorldName : %s, name : %s, %f, %f, %f, %f"), *GetWorld()->GetName(), *GI->MyCharacter->SkeletalMesh->GetName(), MaxHp, Damage, GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), GetCapsuleComponent()->GetScaledCapsuleRadius());
+float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UStatManagementComponent* StatComponent = FindComponentByClass<UStatManagementComponent>();
 
+	if (!StatComponent)
+		return 0.0f;
+
+	StatComponent->CurHp -= DamageAmount;
+
+	return 0.0f;
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -491,7 +499,6 @@ void ABaseCharacter::ReqAttack_Implementation()
 
 void ABaseCharacter::AttackSwitch_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Message);
 
 	switch (AttackCount)
 	{
@@ -538,6 +545,28 @@ void ABaseCharacter::ResetCombo()
 void ABaseCharacter::SetInputPossible()
 {
 	IsInputPossible = true;
+	
+}
+
+void ABaseCharacter::ReqDieProcess_Implementation(USkeletalMeshComponent* skmesh)
+{
+	skmesh->SetSimulatePhysics(true);
+	RecDieProcess(skmesh);
+}
+
+void ABaseCharacter::RecDieProcess_Implementation(USkeletalMeshComponent* skmesh)
+{
+	skmesh->SetSimulatePhysics(true);
+}
+
+void ABaseCharacter::SetSpectatorMode()
+{
+
+}
+
+APlayerController* ABaseCharacter::GetTargetPlayerController()
+{
+	return nullptr;
 }
 
 void ABaseCharacter::ReqSetLobbyCharacter_Implementation(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP)
@@ -564,6 +593,11 @@ void ABaseCharacter::ReqSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 
 void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle)
 {
+	UStatManagementComponent* StatComponent = Cast<UStatManagementComponent>(FindComponentByClass<UStatManagementComponent>());
+
+	if (!StatComponent)
+		return;
+
 	GetMesh()->SetSkeletalMesh(skeletalMesh);
 	GetMesh()->SetAnimInstanceClass(animBp->GetAnimBlueprintGeneratedClass());
 	GetMesh()->SetRelativeLocation(FVector(0, 0, capsuleHeight * -1));
@@ -573,10 +607,10 @@ void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 	ThirdAttackMontage = thirdAttackMontage;
 	FourthAttackMontage = fourthAttackMontage;
 	LevelStartMontage = levelStartMontage;
-	MaxHp = maxHp;
-	Damage = damage;
+	StatComponent->MaxHp = maxHp;
+	StatComponent->Power = damage;
 	HitParticle = hitParticle;
-	CurHp = maxHp;
+	StatComponent->CurHp = maxHp;
 
 	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	if (!CapsuleComp)
@@ -592,6 +626,8 @@ void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 		return;
 
 	CharacterMovementComponent->MaxWalkSpeed = speed;
+
+	ReqPlayAnimMontage(LevelStartMontage);
 }
 
 void ABaseCharacter::ReqSetWeapon_Implementation(FVector boxCollisionExt)
@@ -620,17 +656,13 @@ void ABaseCharacter::RecSetWeapon_Implementation(FVector boxCollisionExt)
 
 void ABaseCharacter::ReqLog_Implementation(const FString& message)
 {
-	Message = message;
 
-	if (HasAuthority())
-	{
-		ClientLog(message);
-	}
+
 }
 
 void ABaseCharacter::ClientLog_Implementation(const FString& message)
 {
-	Message = message;
+
 }
 
 void ABaseCharacter::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)
