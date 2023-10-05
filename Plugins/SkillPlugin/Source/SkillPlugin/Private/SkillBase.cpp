@@ -9,7 +9,7 @@ ASkillBase::ASkillBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -36,9 +36,15 @@ void ASkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(ASkillBase, PartY);
 	DOREPLIFETIME(ASkillBase, PartZ);
 	DOREPLIFETIME(ASkillBase, SkillSize);
+	DOREPLIFETIME(ASkillBase, SkillName);
+	DOREPLIFETIME(ASkillBase, Price);
+	DOREPLIFETIME(ASkillBase, SkillDescription);
+	DOREPLIFETIME(ASkillBase, SkillThumbnail);
+	DOREPLIFETIME(ASkillBase, OwnChar);
 }
 
 void ASkillBase::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 }
+
 

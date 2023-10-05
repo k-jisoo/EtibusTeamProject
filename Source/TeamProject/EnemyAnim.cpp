@@ -11,24 +11,21 @@ UEnemyAnim::UEnemyAnim()
 
 void UEnemyAnim::OnAttackEndAnimation()
 {
-	bAttackPlay = false;
+	bAttacking = false;
 }
 
-void UEnemyAnim::PlayAttackMontage()
+void UEnemyAnim::ReqPlayAttackMontage_Implementation()
 {
+	ResPlayAttackMontage();
+}
+
+void UEnemyAnim::ResPlayAttackMontage_Implementation()
+{
+	//req res 만들기
+	//res 
 	if (AttackMontage && AttackSequence) {
 		UAnimMontage* pAnimationMtg = PlaySlotAnimationAsDynamicMontage(AttackSequence, TEXT("DefaultSlot"), 0.3f, 0.3f, 1.0f);
 
 		Montage_Play(AttackMontage, 1);
 	}
-	
-
-	if (AttackMontage != nullptr) {
-		
-	}
-	
 }
-
-
-
-

@@ -12,10 +12,12 @@ UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
 	Ible,
-	Move,
-	Attack,
 	Damage,
-	Die
+	Die,
+	MoveCrystal,
+	AttackCrystal,
+	MoveTarget,
+	AttackTarget
 };
 /**
  * 
@@ -31,7 +33,7 @@ public:
 	AEnemyAIController();
 
 
-//애님인스턴스 연결
+// Anim
 public:
 
 	UPROPERTY()
@@ -39,6 +41,9 @@ public:
 
 	UPROPERTY()
 	class UEnemyAnim* anim;
+
+	UPROPERTY()
+	class AActor* Target;
 
 	virtual void OnPossess(APawn* InPawn) override;
 
@@ -59,13 +64,14 @@ private:
 
 	UBlackboardComponent* BlackboardComp = Blackboard;
 
-
-// 퍼셉션
+// Perception
 public:
 
-	void SetPerceptionSystem();
+	float Sight = 500.0f;
 
-	void SetAttackSystem();
+	float AttackRange = 200.0f;
+
+	void SetPerceptionSystem();
 
 	//2 Perception
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Perception)

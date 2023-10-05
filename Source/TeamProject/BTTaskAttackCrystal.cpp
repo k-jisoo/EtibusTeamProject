@@ -1,33 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTTackAttack.h"
-#include "Enemy.h"
+#include "BTTaskAttackCrystal.h"
 #include "EnemyAnim.h"
 #include "EnemyAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/BTFunctionLibrary.h"
-#include "Crystal.h"
 
 
-UBTTackAttack::UBTTackAttack()
+
+UBTTaskAttackCrystal::UBTTaskAttackCrystal()
 {
-	NodeName = TEXT("BTTackAttackTarget");
+	NodeName = TEXT("BTTaskAttackCrystal");
 }
 
-EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTaskAttackCrystal::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-
-	if (Controller == nullptr) 
+	if (Controller == nullptr)
 	{
 		Controller = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
-		if (Controller ==nullptr) 
+		if (Controller == nullptr)
 		{
 			return EBTNodeResult::Failed;
 		}
 	}
 
-	if (anim == nullptr) 
+	if (anim == nullptr)
 	{
 		anim = Controller->anim;
 	}

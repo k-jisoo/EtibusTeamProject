@@ -42,6 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 	UAnimMontage* AttackMontage;
 
-	void PlayAttackMontage();
+	UFUNCTION(Server, Reliable)
+	void ReqPlayAttackMontage();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ResPlayAttackMontage();
+
+	bool bAttacking;
 
 };

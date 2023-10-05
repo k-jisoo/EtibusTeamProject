@@ -163,9 +163,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void ResSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, double PartX, double PartY, double PartZ, double SkillSize);
 
-	UFUNCTION()
-	void SpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, double PartX, double PartY, double PartZ, double SkillSize);
-
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -241,6 +238,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class APassiveSkillDefenseArea> DefenseAreaClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillStorm* storm;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillLightning* lightning;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillWaterBall* waterBall;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	APassiveSkillDefenseArea* defenseArea;
 
 public:
 	bool IsAttacking;

@@ -64,6 +64,15 @@ void USkillManagementComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 void USkillManagementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(USkillManagementComponent, LightningLevel);
+	DOREPLIFETIME(USkillManagementComponent, StormLevel);
+	DOREPLIFETIME(USkillManagementComponent, WaterBallLevel);
+	DOREPLIFETIME(USkillManagementComponent, DefenseAreaLevel);
+	DOREPLIFETIME(USkillManagementComponent, LightningCooldown);
+	DOREPLIFETIME(USkillManagementComponent, StormCooldown);
+	DOREPLIFETIME(USkillManagementComponent, WaterBallCooldown);
+	DOREPLIFETIME(USkillManagementComponent, DefenseAreaCooldown);
 }
 
 
@@ -96,6 +105,7 @@ void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SKill Level Up fail"));
+		return;
 	}
 
 	OnRep_SkillLevel();
@@ -185,15 +195,10 @@ void USkillManagementComponent::UsingSkill(ASkillBase* targetSkill)
 	{
 		return;
 	}
-	
+
 	if (targetSkill == Lightning)
 	{
 		GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, this, &USkillManagementComponent::LightningCooldownCounter, 1.0f, true);
-		
-		/*GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, [&]()
-			{
-				SkillCooldownCounter(targetSkill);
-			}, 1.0f, true);*/
 	}
 	else if (targetSkill == WaterBall)
 	{
@@ -211,7 +216,6 @@ void USkillManagementComponent::UsingSkill(ASkillBase* targetSkill)
 	{
 		return;
 	}
-	
 }
 
 void USkillManagementComponent::LightningCooldownCounter()
@@ -302,7 +306,5 @@ void USkillManagementComponent::OnRep_SkillLevel()
 	if (Fuc_Dele_UpdateSkillLevel.IsBound())
 		Fuc_Dele_UpdateSkillLevel.Broadcast(SkillDatas);
 }
-
-
 
 

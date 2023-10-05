@@ -4,10 +4,13 @@
 #include "LobbyPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "LobbyUserWidget.h"
+#include "Net/UnrealNetwork.h"
 
 void ALobbyPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    bReplicates = true;
 
     APlayerController* myPlayerController = GetWorld()->GetFirstPlayerController();
 
@@ -26,7 +29,9 @@ void ALobbyPlayerController::BeginPlay()
 
     myPlayerController->SetInputMode(FInputModeUIOnly());
     myPlayerController->bShowMouseCursor = true;
+    IsReady = false;
 
+    
 }
 
 bool ALobbyPlayerController::C2S_SendMessage_Validate(FText const& Message)
@@ -57,3 +62,22 @@ void ALobbyPlayerController::S2C_SendMessage_Implementation(FText const& Message
     Widget->AddMessage(Message);
 }
 
+void ALobbyPlayerController::ReqSetReady_Implementation()
+{
+    RecSetReady();
+}
+
+void ALobbyPlayerController::RecSetReady_Implementation()
+{
+    IsReady = true;
+}
+
+void ALobbyPlayerController::ReqCancelReady_Implementation()
+{   
+    RecCancelReady();
+}
+
+void ALobbyPlayerController::RecCancelReady_Implementation()
+{
+    IsReady = false;
+}

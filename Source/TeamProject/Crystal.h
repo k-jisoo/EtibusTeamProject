@@ -34,11 +34,28 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UBoxComponent* Box;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UCapsuleComponent* Capsule;
 
 
-//데미지 관련 로직
+//데미지 관련
 public:
+
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+
+
+protected:
+
+	float CurHp;
+
+	float MaxHp;
+
+	bool bLive;
+
+	void UpdateHp(float Amount);
+
+	void Die();
 
 };

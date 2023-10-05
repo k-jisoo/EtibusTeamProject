@@ -43,10 +43,34 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 	class AController* EventInstigator, AActor* DamageCauser) override;
 
+protected:
+
 	void UpdateHp(float Amount);
 
+// 적 옵션 관련
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=EnemyOption)
 	float CurHp;
-	float MaxHp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
+	float MaxHp = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
+	float Sight = 500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
+	float AttackRange = 200.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
+	float Damage = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
+	float Speed = 200.0f;
+
+	float AttackRangeByCrystal;
+
+//Anim 관련
+public:
+	class UEnemyAnim* anim;
 
 };

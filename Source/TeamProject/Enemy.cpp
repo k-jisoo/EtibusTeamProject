@@ -17,12 +17,17 @@ AEnemy::AEnemy()
 
 	GetMesh()->SetRelativeScale3D(FVector(0.84f));
 
+	GetMesh()->SetCanEverAffectNavigation(true);
+
+	anim = Cast<UEnemyAnim>(GetMesh()->GetAnimInstance());
+
 	//AIControllerClass 설정
 	AIControllerClass = AEnemyAIController::StaticClass();
 	//AI생성 옵션 - 앞으로 생성되는 AEnemy마다 AI를 잡아줌
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	MaxHp = 100;
+
 	CurHp = 100;
 
 }
@@ -58,6 +63,8 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 		return 0.0f;
 
 	UpdateHp(DamageAmount * -1);
+
+	UE_LOG(LogTemp, Warning, TEXT("has Damage = %d"), DamageAmount);
 
 	return DamageAmount;
 }

@@ -70,6 +70,16 @@ void AActiveSkillStorm::BeginPlay()
 
 	OnActorBeginOverlap.AddDynamic(this, &AActiveSkillStorm::ProcessBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AActiveSkillStorm::EndOverlap);
+	
+	if (HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Server::"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client::"));
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Size = %f"), SkillSize);
 
 	SetLifeSpan(10.0f);
 }
@@ -104,7 +114,7 @@ void AActiveSkillStorm::ApplySkillDamage()
 
 	// 틱데미지 구현
 	FTimerManager& timerManager = GetWorld()->GetTimerManager();
-	timerManager.SetTimer(Th_ProcessBeginOverlap, this, &AActiveSkillStorm::ApplySkillDamage, 0.5f, false);
+	timerManager.SetTimer(Th_ProcessBeginOverlap, this, &AActiveSkillStorm::ApplySkillDamage, 0.5f, true);
 }
 
 void AActiveSkillStorm::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
