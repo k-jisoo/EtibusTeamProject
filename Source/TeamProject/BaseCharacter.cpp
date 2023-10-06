@@ -72,7 +72,7 @@ void ABaseCharacter::BeginPlay()
 	if (!PC)
 		return;
 
-	ReqDieProcess(GetMesh());
+	PC->ReqDieProcess(GetMesh());
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -307,6 +307,11 @@ void ABaseCharacter::SpawnActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea
 			}
 		}
 	}
+}
+
+void ABaseCharacter::OnRep_IsSimulatingPhysics()
+{
+	GetMesh()->SetSimulatePhysics(bIsSimulatingPhysics);
 }
 
 
@@ -612,17 +617,6 @@ void ABaseCharacter::SetInputPossible()
 	
 }
 
-void ABaseCharacter::ReqDieProcess_Implementation(USkeletalMeshComponent* skmesh)
-{
-	skmesh->SetSimulatePhysics(true);
-	RecDieProcess(skmesh);
-}
-
-void ABaseCharacter::RecDieProcess_Implementation(USkeletalMeshComponent* skmesh)
-{
-	skmesh->SetSimulatePhysics(true);
-}
-
 void ABaseCharacter::SetSpectatorMode()
 {
 
@@ -652,11 +646,24 @@ void ABaseCharacter::ReqSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 	if(HasAuthority())
 	{
 		RecSetCharacter(skeletalMesh, animBp, firstAttackMontage, secondAttackMontage, thirdAttackMontage, fourthAttackMontage, levelStartMontage, maxHp, damage, speed, capsuleHeight, capsuleRadius, boxCollisionExt, hitParticle);
+		UE_LOG(LogTemp, Warning, TEXT("ServerReqSetCharacter"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ClientReqSetCharacter"));
 	}
 }
 
 void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle)
 {
+	if (HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ServerRecSetCharacter"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ClientRecSetCharacter"));
+	}
 	UStatManagementComponent* StatComponent = Cast<UStatManagementComponent>(FindComponentByClass<UStatManagementComponent>());
 
 	if (!StatComponent)

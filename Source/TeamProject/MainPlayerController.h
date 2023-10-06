@@ -98,7 +98,11 @@ public:
 	UFUNCTION()
 	void BindStatManagers();
 
-	void DieProcess();
+	UFUNCTION(Server, Reliable)
+	void ReqDieProcess(USkeletalMeshComponent* skMesh);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecDieProcess(USkeletalMeshComponent* skMesh);
 	
 	UFUNCTION()
 	void AddSkillDataToSkillManager(TArray<class ASkillBase*>& skillDatas);

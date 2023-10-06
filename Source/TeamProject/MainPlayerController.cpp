@@ -240,33 +240,30 @@ void AMainPlayerController::BindStatManagers()
 	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);*/
 }
 
-void AMainPlayerController::DieProcess()
+void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent* skMesh)
 {
-	ABaseCharacter* Char = Cast<ABaseCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
-
-	Char->ReqDieProcess(true);
+	skMesh->SetSimulatePhysics(true);
 
 	DisableInput(this);
 
 	IsAlive = false;
 
-	UWorld* World = GetWorld();
+	skMesh->SetCollisionProfileName(FName("Ragdoll"));
 
-	if (!World)
-		return;
-
-	AGameModeBase* CurrentGameMode = UGameplayStatics::GetGameMode(GetWorld());
-
-	if (!CurrentGameMode)
-		return;
-
-	AMainGameMode* GM = Cast<AMainGameMode>(CurrentGameMode);
-
-	if (!GM)
-		return;
-
-	GM->GameOver();
+	RecDieProcess(skMesh);
 }
+
+void AMainPlayerController::RecDieProcess_Implementation(USkeletalMeshComponent* skMesh)
+{
+	skMesh->SetSimulatePhysics(true);
+
+	DisableInput(this);
+
+	IsAlive = false;
+
+	skMesh->SetCollisionProfileName(FName("Ragdoll"));
+}
+
 
 void AMainPlayerController::AddSkillDataToSkillManager(TArray<class ASkillBase*>& SkillDatas)
 {

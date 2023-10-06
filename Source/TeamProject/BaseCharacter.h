@@ -124,12 +124,6 @@ public:
 
 	void SetInputPossible();
 
-	UFUNCTION(Server, Reliable)
-	void ReqDieProcess(USkeletalMeshComponent* skmesh);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void RecDieProcess(USkeletalMeshComponent* skmesh);
-
 	void SetSpectatorMode();
 
 	APlayerController* GetTargetPlayerController();
@@ -178,6 +172,9 @@ public:
 	UFUNCTION()
 	void SpawnActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
+	UFUNCTION()
+	void OnRep_IsSimulatingPhysics();
+	
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USpringArmComponent* SpringArm;
@@ -264,6 +261,7 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	APassiveSkillDefenseArea* defenseArea;
+
 
 public:
 	bool IsAttacking;
