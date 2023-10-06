@@ -7,6 +7,10 @@
 #include "SkillManagementComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_UpdateSkillLevel, const TArray<class ASkillBase*>&, skill);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateDefenseAreaCooldown, float, skillColldown);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateStormCooldown, float, skillColldown);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateLightningCooldown, float, skillColldown);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateWaterBallCooldown, float, skillColldown);
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -14,7 +18,7 @@ class SKILLPLUGIN_API USkillManagementComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
+	public:
 	// Sets default values for this component's properties
 	USkillManagementComponent();
 
@@ -46,29 +50,29 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	class APassiveSkillDefenseArea* DefenseArea;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float LightningLevel = 0;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float LightningLevel;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float StormLevel = 0;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float StormLevel;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float DefenseAreaLevel = 0;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float DefenseAreaLevel;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float WaterBallLevel = 0;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float WaterBallLevel;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float LightningCooldown = 10.0f;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float LightningCooldown;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float StormCooldown = 15.0f;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float StormCooldown;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float DefenseAreaCooldown = 5.0f;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float DefenseAreaCooldown;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
-	float WaterBallCooldown = 7.0f;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data", Replicated)
+	float WaterBallCooldown;
 
 	UFUNCTION()
 	void SkillLevelUp(class ASkillBase* targetSkill);
@@ -110,5 +114,29 @@ public:
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 	FDele_UpdateSkillLevel Fuc_Dele_UpdateSkillLevel;
+
+	UFUNCTION()
+	void OnRep_DefenseAreaCooldown();
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+	Fuc_Dele_UpdateDefenseAreaCooldown Fuc_Dele_UpdateDefenseAreaCooldown;
+
+	UFUNCTION()
+	void OnRep_LightningCooldown();
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+	Fuc_Dele_UpdateLightningCooldown Fuc_Dele_UpdateLightningCooldown;
+
+	UFUNCTION()
+	void OnRep_WaterBallCooldown();
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+	Fuc_Dele_UpdateWaterBallCooldown Fuc_Dele_UpdateWaterBallCooldown;
+
+	UFUNCTION()
+	void OnRep_StormCooldown();
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+	Fuc_Dele_UpdateStormCooldown Fuc_Dele_UpdateStormCooldown;
 
 };

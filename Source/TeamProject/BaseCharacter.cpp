@@ -29,6 +29,10 @@
 #include "ActiveSkillWaterBall.h"
 #include "PassiveSkillDefenseArea.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "StatManagementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "MainGameMode.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -53,7 +57,7 @@ ABaseCharacter::ABaseCharacter()
 	IsAttacking = false;
 	IsSaveAttack = false;
 	AttackCount = 0;
-	IsInputPossible = true;
+	IsInputPossible = false;
 
 	bReplicates = true;
 }
@@ -62,20 +66,25 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UTPGameInstance* GI = Cast<UTPGameInstance>(GetWorld()->GetGameInstance());
 	
-	//if (!(GI->MyCharacter))
-	//	return;
-	
-	//ReqSetCharacter(GI->MyCharacter->SkeletalMesh, GI->MyCharacter->AnimBP, GI->MyCharacter->FirstAttackMontage, GI->MyCharacter->SecondAttackMontage, GI->MyCharacter->ThirdAttackMontage, GI->MyCharacter->FourthAttackMontage, GI->MyCharacter->LevelStartMontage, GI->MyCharacter->MaxHp, GI->MyCharacter->Damage, GI->MyCharacter->Speed, GI->MyCharacter->CapsuleHeight, GI->MyCharacter->CapsuleRadius, GI->MyCharacter->BoxCollisionExt, GI->MyCharacter->HitParticle);
+	AMainPlayerController* PC = Cast<AMainPlayerController>(GetController());
 
-	//SetWeapon();
+	if (!PC)
+		return;
 
-	//Message = FString("First Message");
-	//ReqLog(FString("Second Message"));
+	PC->ReqDieProcess(GetMesh());
+}
 
-	//UE_LOG(LogTemp, Warning, TEXT("WorldName : %s, name : %s, %f, %f, %f, %f"), *GetWorld()->GetName(), *GI->MyCharacter->SkeletalMesh->GetName(), MaxHp, Damage, GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), GetCapsuleComponent()->GetScaledCapsuleRadius());
+float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UStatManagementComponent* StatComponent = FindComponentByClass<UStatManagementComponent>();
 
+	if (!StatComponent)
+		return 0.0f;
+
+	StatComponent->CurHp -= DamageAmount;
+
+	return 0.0f;
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -118,6 +127,10 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ABaseCharacter, LightningClass);
 	DOREPLIFETIME(ABaseCharacter, WaterBallClass);
 	DOREPLIFETIME(ABaseCharacter, DefenseAreaClass);
+	DOREPLIFETIME(ABaseCharacter, storm);
+	DOREPLIFETIME(ABaseCharacter, waterBall);
+	DOREPLIFETIME(ABaseCharacter, lightning);
+	DOREPLIFETIME(ABaseCharacter, defenseArea);
 
 }
 
@@ -170,9 +183,9 @@ void ABaseCharacter::EventGetItem_Implementation(EItemType itemType)
 
 }
 
-void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
+void ABaseCharacter::SpawnActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize)
 {
-	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
+	AMainPlayerController* PC = Cast<AMainPlayerController>(spawnUser);
 
 	if (PC)
 	{
@@ -188,20 +201,19 @@ void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 
 			//UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->SkillName);
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *spawnSkill->GetName());
-			return;
+
 			if (spawnSkill->SkillName == "Fire Storm")
 			{
-				AActiveSkillStorm* storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location + (ForwardVector * 150 * SkillManager->StormLevel), Rotation);
+				if (!HasAuthority()) return;
+
+				storm = GetWorld()->SpawnActor<AActiveSkillStorm>(StormClass, Location + (ForwardVector * 200 * SkillManager->StormLevel), Rotation);
 
 				if (storm)
 				{
-					storm->Damage *= SkillManager->StormLevel;
-					storm->PartX *= SkillManager->StormLevel;
-					storm->PartY *= SkillManager->StormLevel;
-					storm->PartZ *= SkillManager->StormLevel;
-					storm->SkillSize *= SkillManager->StormLevel;
-					storm->SkillArea->SetBoxExtent(FVector(storm->PartX, storm->PartY, storm->PartZ));
-					storm->SkillBody->SetRelativeScale3D(FVector(storm->SkillSize, storm->SkillSize, storm->SkillSize));
+					storm->Damage = SkillDamage;
+					storm->SkillArea->SetBoxExtent(Collision);
+					storm->SkillBody->SetRelativeScale3D(skillSize);
+					storm->OwnChar = this;
 					UParticleSystemComponent* ParticleComponent = storm->FindComponentByClass<UParticleSystemComponent>();
 					if (ParticleComponent)
 					{
@@ -209,22 +221,24 @@ void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					}
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->StormLevel);
 					storm->SetActorHiddenInGame(false);
+					// 해당 액터를 리플리케이트합니다.
+					storm->ForceNetUpdate(); // 액터의 속성을 변경한 경우, 이것을 호출하여 업데이트를 강제로 보낼 수 있습니다.
+
 				}
+
 				SkillManager->UsingSkill(spawnSkill);
+
 			}
 			else if (spawnSkill->SkillName == "Lightning")
 			{
-				AActiveSkillLightning* lightning = GetWorld()->SpawnActor<AActiveSkillLightning>(LightningClass, Location + (ForwardVector * 100 * SkillManager->LightningLevel), Rotation);
+				lightning = GetWorld()->SpawnActor<AActiveSkillLightning>(LightningClass, Location + (ForwardVector * 100 * SkillManager->LightningLevel), Rotation);
 
 				if (lightning)
 				{
-					lightning->Damage *= SkillManager->LightningLevel;
-					lightning->PartX *= SkillManager->LightningLevel;
-					lightning->PartY *= SkillManager->LightningLevel;
-					lightning->PartZ *= SkillManager->LightningLevel;
-					lightning->SkillSize *= SkillManager->LightningLevel;
-					lightning->SkillArea->SetBoxExtent(FVector(lightning->PartX, lightning->PartY, lightning->PartZ));
-					lightning->SkillBody->SetRelativeScale3D(FVector(lightning->SkillSize, lightning->SkillSize, lightning->SkillSize));
+					lightning->Damage = SkillDamage;
+					lightning->SkillArea->SetBoxExtent(Collision);
+					lightning->SkillBody->SetRelativeScale3D(skillSize);
+					lightning->OwnChar = this;
 					UParticleSystemComponent* ParticleComponent = lightning->FindComponentByClass<UParticleSystemComponent>();
 					if (ParticleComponent)
 					{
@@ -232,22 +246,24 @@ void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					}
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->LightningLevel);
 					lightning->SetActorHiddenInGame(false);
+					// 해당 액터를 리플리케이트합니다.
+					lightning->ForceNetUpdate(); // 액터의 속성을 변경한 경우, 이것을 호출하여 업데이트를 강제로 보낼 수 있습니다.
+
 				}
+
 				SkillManager->UsingSkill(spawnSkill);
+
 			}
 			else if (spawnSkill->SkillName == "Water Ball")
 			{
-				AActiveSkillWaterBall* waterBall = GetWorld()->SpawnActor<AActiveSkillWaterBall>(WaterBallClass, Location + (ForwardVector * 50 * SkillManager->WaterBallLevel), Rotation);
+				waterBall = GetWorld()->SpawnActor<AActiveSkillWaterBall>(WaterBallClass, Location + (ForwardVector * 50 * SkillManager->WaterBallLevel), Rotation);
 
 				if (waterBall)
 				{
-					waterBall->Damage *= SkillManager->WaterBallLevel;
-					waterBall->PartX *= SkillManager->WaterBallLevel;
-					waterBall->PartY *= SkillManager->WaterBallLevel;
-					waterBall->PartZ *= SkillManager->WaterBallLevel;
-					waterBall->SkillSize *= SkillManager->WaterBallLevel;
-					waterBall->SkillArea->SetBoxExtent(FVector(waterBall->PartX, waterBall->PartY, waterBall->PartZ));
-					waterBall->SkillBody->SetRelativeScale3D(FVector(waterBall->SkillSize, waterBall->SkillSize, waterBall->SkillSize));
+					waterBall->Damage = SkillDamage;
+					waterBall->SkillArea->SetBoxExtent(Collision);
+					waterBall->SkillBody->SetRelativeScale3D(skillSize);
+					waterBall->OwnChar = this;
 					UParticleSystemComponent* ParticleComponent = waterBall->FindComponentByClass<UParticleSystemComponent>();
 					if (ParticleComponent)
 					{
@@ -255,49 +271,59 @@ void ABaseCharacter::ResSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
 					}
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->WaterBallLevel);
 					waterBall->SetActorHiddenInGame(false);
+					// 해당 액터를 리플리케이트합니다.
+					waterBall->ForceNetUpdate(); // 액터의 속성을 변경한 경우, 이것을 호출하여 업데이트를 강제로 보낼 수 있습니다.
+
 				}
+
 				SkillManager->UsingSkill(spawnSkill);
+
 			}
 			else if (spawnSkill->SkillName == "Defense Area")
 			{
-				APassiveSkillDefenseArea* defenseArea = GetWorld()->SpawnActor<APassiveSkillDefenseArea>(DefenseAreaClass, Location, Rotation);
+				defenseArea = GetWorld()->SpawnActor<APassiveSkillDefenseArea>(DefenseAreaClass, Location, Rotation);
 
 				if (defenseArea)
 				{
-					defenseArea->Damage *= SkillManager->DefenseAreaLevel;
-					defenseArea->PartX *= SkillManager->DefenseAreaLevel;
-					defenseArea->PartY *= SkillManager->DefenseAreaLevel;
-					defenseArea->PartZ *= SkillManager->DefenseAreaLevel;
-					defenseArea->SkillSize *= SkillManager->DefenseAreaLevel;
-					defenseArea->SkillArea->SetBoxExtent(FVector(defenseArea->PartX, defenseArea->PartY, defenseArea->PartZ));
-					defenseArea->SkillBody->SetRelativeScale3D(FVector(defenseArea->SkillSize, defenseArea->SkillSize, defenseArea->SkillSize));
+					defenseArea->Damage = SkillDamage;
+					defenseArea->SkillArea->SetBoxExtent(Collision);
+					defenseArea->SkillBody->SetRelativeScale3D(skillSize);
+					defenseArea->OwnChar = this;
 					UParticleSystemComponent* ParticleComponent = defenseArea->FindComponentByClass<UParticleSystemComponent>();
 					if (ParticleComponent)
 					{
 						ParticleComponent->Activate();
 					}
-					defenseArea->SkillArea->SetSimulatePhysics(false);
-					AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("spine_01"));
 					UE_LOG(LogTemp, Warning, TEXT("%d"), SkillManager->DefenseAreaLevel);
 					defenseArea->SetActorHiddenInGame(false);
+					// 해당 액터를 리플리케이트합니다.
+					defenseArea->ForceNetUpdate(); // 액터의 속성을 변경한 경우, 이것을 호출하여 업데이트를 강제로 보낼 수 있습니다.
+
 				}
+
 				SkillManager->UsingSkill(spawnSkill);
 			}
 		}
 	}
+}
+
+void ABaseCharacter::OnRep_IsSimulatingPhysics()
+{
 	
 }
 
 
-void ABaseCharacter::ReqSpawnSkillActor_Implementation(ASkillBase* spawnSkill)
+void ABaseCharacter::ResSpawnSkillActor_Implementation(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize)
 {
-	if (!spawnSkill)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("spawnSkill"));
-		return;
-	}
 
-	ResSpawnSkillActor(spawnSkill);
+}
+
+
+void ABaseCharacter::ReqServerSpawnSkillActor_Implementation(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize)
+{
+	SpawnActor(spawnUser, spawnSkill, SkillArea, SkillBody, SkillDamage, Collision, skillSize);
+
+	ResSpawnSkillActor(spawnUser, spawnSkill, SkillArea, SkillBody, SkillDamage, Collision, skillSize);
 }
 
 void ABaseCharacter::Look(const FInputActionValue& Value)
@@ -346,22 +372,45 @@ void ABaseCharacter::Attack(const FInputActionValue& Value)
 }
 
 void ABaseCharacter::UsingSkill_First(const FInputActionValue& Value)
-{	
-	
-	AMainPlayerController* PC = Cast<AMainPlayerController>(GetWorld()->GetFirstPlayerController());
-
-	USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
-
-	if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
+{
+	if (HasAuthority())
 	{
-		// ���������� �ٷ� ���� ����
-		ReqSpawnSkillActor(PC->PlayerSkills[0]);
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
+		{
+			// 서버에서는 바로 액터 스폰
+			SpawnActor(PC, PC->PlayerSkills[0], PC->PlayerSkills[0]->SkillArea, PC->PlayerSkills[0]->SkillBody, PC->PlayerSkills[0]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])),
+				PC->PlayerSkills[0]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])),
+				PC->PlayerSkills[0]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
 	}
-	else
+	else if (!HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
-			return;
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		USkillManagementComponent* SkillManager = Cast<USkillManagementComponent>(PC->FindComponentByClass<USkillManagementComponent>());
+
+		if (PC && PC->PlayerSkills.Num() > 0 && PC->IsCanUseSkill(PC->PlayerSkills[0]) && SkillManager->GetSkillColldown(PC->PlayerSkills[0]))
+		{
+			ReqServerSpawnSkillActor(PC, PC->PlayerSkills[0], PC->PlayerSkills[0]->SkillArea, PC->PlayerSkills[0]->SkillBody, PC->PlayerSkills[0]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])),
+				PC->PlayerSkills[0]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])),
+				PC->PlayerSkills[0]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[0])));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Skill 1 Casting Fail"))
+				return;
+		}
 	}
+
 
 }
 
@@ -375,8 +424,10 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[1]);
+			// 서버에서는 바로 액터 스폰
+			SpawnActor(PC, PC->PlayerSkills[1], PC->PlayerSkills[1]->SkillArea, PC->PlayerSkills[1]->SkillBody, PC->PlayerSkills[1]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])),
+				PC->PlayerSkills[1]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])),
+				PC->PlayerSkills[1]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])));
 		}
 		else
 		{
@@ -392,8 +443,9 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 1 && PC->IsCanUseSkill(PC->PlayerSkills[1]) && SkillManager->GetSkillColldown(PC->PlayerSkills[1]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[1]);
+			ReqServerSpawnSkillActor(PC, PC->PlayerSkills[1], PC->PlayerSkills[1]->SkillArea, PC->PlayerSkills[1]->SkillBody, PC->PlayerSkills[1]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])),
+				PC->PlayerSkills[1]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])),
+				PC->PlayerSkills[1]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[1])));
 		}
 		else
 		{
@@ -405,6 +457,7 @@ void ABaseCharacter::UsingSkill_Second(const FInputActionValue& Value)
 
 void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 {
+
 	if (HasAuthority())
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
@@ -413,8 +466,10 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[2]);
+			// 서버에서는 바로 액터 스폰
+			SpawnActor(PC, PC->PlayerSkills[2], PC->PlayerSkills[2]->SkillArea, PC->PlayerSkills[2]->SkillBody, PC->PlayerSkills[2]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])),
+				PC->PlayerSkills[2]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])),
+				PC->PlayerSkills[2]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])));
 		}
 		else
 		{
@@ -430,8 +485,9 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 2 && PC->IsCanUseSkill(PC->PlayerSkills[2]) && SkillManager->GetSkillColldown(PC->PlayerSkills[2]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[2]);
+			ReqServerSpawnSkillActor(PC, PC->PlayerSkills[2], PC->PlayerSkills[2]->SkillArea, PC->PlayerSkills[2]->SkillBody, PC->PlayerSkills[2]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])),
+				PC->PlayerSkills[2]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])),
+				PC->PlayerSkills[2]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[2])));
 		}
 		else
 		{
@@ -443,6 +499,7 @@ void ABaseCharacter::UsingSkill_Third(const FInputActionValue& Value)
 
 void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 {
+
 	if (HasAuthority())
 	{
 		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
@@ -451,8 +508,10 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[3]);
+			// 서버에서는 바로 액터 스폰
+			SpawnActor(PC, PC->PlayerSkills[3], PC->PlayerSkills[3]->SkillArea, PC->PlayerSkills[0]->SkillBody, PC->PlayerSkills[3]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])),
+				PC->PlayerSkills[3]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])),
+				PC->PlayerSkills[3]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])));
 		}
 		else
 		{
@@ -468,8 +527,9 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 
 		if (PC && PC->PlayerSkills.Num() > 3 && PC->IsCanUseSkill(PC->PlayerSkills[3]) && SkillManager->GetSkillColldown(PC->PlayerSkills[3]))
 		{
-			// ���������� �ٷ� ���� ����
-			ReqSpawnSkillActor(PC->PlayerSkills[3]);
+			ReqServerSpawnSkillActor(PC, PC->PlayerSkills[3], PC->PlayerSkills[3]->SkillArea, PC->PlayerSkills[0]->SkillBody, PC->PlayerSkills[3]->Damage * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])),
+				PC->PlayerSkills[3]->CollisionSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])),
+				PC->PlayerSkills[3]->SkillSizeVector * (SkillManager->GetSkillLevel(PC->PlayerSkills[3])));
 		}
 		else
 		{
@@ -477,6 +537,7 @@ void ABaseCharacter::UsingSkill_Fourth(const FInputActionValue& Value)
 				return;
 		}
 	}
+
 }
 
 void ABaseCharacter::CloseWidget(const FInputActionValue& Value)
@@ -507,7 +568,6 @@ void ABaseCharacter::ReqAttack_Implementation()
 
 void ABaseCharacter::AttackSwitch_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Message);
 
 	switch (AttackCount)
 	{
@@ -554,6 +614,17 @@ void ABaseCharacter::ResetCombo()
 void ABaseCharacter::SetInputPossible()
 {
 	IsInputPossible = true;
+	
+}
+
+void ABaseCharacter::SetSpectatorMode()
+{
+
+}
+
+APlayerController* ABaseCharacter::GetTargetPlayerController()
+{
+	return nullptr;
 }
 
 void ABaseCharacter::ReqSetLobbyCharacter_Implementation(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP)
@@ -575,11 +646,29 @@ void ABaseCharacter::ReqSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 	if(HasAuthority())
 	{
 		RecSetCharacter(skeletalMesh, animBp, firstAttackMontage, secondAttackMontage, thirdAttackMontage, fourthAttackMontage, levelStartMontage, maxHp, damage, speed, capsuleHeight, capsuleRadius, boxCollisionExt, hitParticle);
+		UE_LOG(LogTemp, Warning, TEXT("ServerReqSetCharacter"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ClientReqSetCharacter"));
 	}
 }
 
 void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh, UAnimBlueprint* animBp, UAnimMontage* firstAttackMontage, UAnimMontage* secondAttackMontage, UAnimMontage* thirdAttackMontage, UAnimMontage* fourthAttackMontage, UAnimMontage* levelStartMontage, float maxHp, float damage, float speed, float capsuleHeight, float capsuleRadius, FVector boxCollisionExt, UParticleSystem* hitParticle)
 {
+	if (HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ServerRecSetCharacter"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ClientRecSetCharacter"));
+	}
+	UStatManagementComponent* StatComponent = Cast<UStatManagementComponent>(FindComponentByClass<UStatManagementComponent>());
+
+	if (!StatComponent)
+		return;
+
 	GetMesh()->SetSkeletalMesh(skeletalMesh);
 	GetMesh()->SetAnimInstanceClass(animBp->GetAnimBlueprintGeneratedClass());
 	GetMesh()->SetRelativeLocation(FVector(0, 0, capsuleHeight * -1));
@@ -589,10 +678,10 @@ void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 	ThirdAttackMontage = thirdAttackMontage;
 	FourthAttackMontage = fourthAttackMontage;
 	LevelStartMontage = levelStartMontage;
-	MaxHp = maxHp;
-	Damage = damage;
+	StatComponent->MaxHp = maxHp;
+	StatComponent->Power = damage;
 	HitParticle = hitParticle;
-	CurHp = maxHp;
+	StatComponent->CurHp = maxHp;
 
 	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	if (!CapsuleComp)
@@ -608,6 +697,8 @@ void ABaseCharacter::RecSetCharacter_Implementation(USkeletalMesh* skeletalMesh,
 		return;
 
 	CharacterMovementComponent->MaxWalkSpeed = speed;
+
+	ReqPlayAnimMontage(LevelStartMontage);
 }
 
 void ABaseCharacter::ReqSetWeapon_Implementation(FVector boxCollisionExt)
@@ -636,17 +727,13 @@ void ABaseCharacter::RecSetWeapon_Implementation(FVector boxCollisionExt)
 
 void ABaseCharacter::ReqLog_Implementation(const FString& message)
 {
-	Message = message;
 
-	if (HasAuthority())
-	{
-		ClientLog(message);
-	}
+
 }
 
 void ABaseCharacter::ClientLog_Implementation(const FString& message)
 {
-	Message = message;
+
 }
 
 void ABaseCharacter::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)

@@ -82,6 +82,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -122,6 +124,10 @@ public:
 
 	void SetInputPossible();
 
+	void SetSpectatorMode();
+
+	APlayerController* GetTargetPlayerController();
+
 	UFUNCTION(Server, Reliable)
 	void ReqSetLobbyCharacter(USkeletalMesh* SkeletalMesh, UAnimBlueprint* AnimBP);
 
@@ -158,11 +164,17 @@ public:
 	void EventGetItem_Implementation(EItemType itemType) override;
 
 	UFUNCTION(Server, Reliable)
-	void ReqSpawnSkillActor(ASkillBase* spawnSkill);
+	void ReqServerSpawnSkillActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void ResSpawnSkillActor(ASkillBase* spawnSkill);
+	void ResSpawnSkillActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
+	UFUNCTION()
+	void SpawnActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
+
+	UFUNCTION()
+	void OnRep_IsSimulatingPhysics();
+	
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USpringArmComponent* SpringArm;
@@ -238,14 +250,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	TSubclassOf<class APassiveSkillDefenseArea> DefenseAreaClass;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillStorm* storm;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillLightning* lightning;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	AActiveSkillWaterBall* waterBall;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	APassiveSkillDefenseArea* defenseArea;
+
+
 public:
 	bool IsAttacking;
 	bool IsSaveAttack;
 	bool IsInputPossible;
 	int AttackCount;
-	float Damage;
-	float MaxHp;
-	float CurHp;
-
-	FString Message;
 };

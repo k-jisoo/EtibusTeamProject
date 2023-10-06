@@ -25,6 +25,9 @@ public:
 
 	void InitCharacter();
 
+	UPROPERTY()
+	bool IsAlive;
+
 	struct FTimerHandle MyHandle;
 
 public:
@@ -95,6 +98,12 @@ public:
 	UFUNCTION()
 	void BindStatManagers();
 
+	UFUNCTION(Server, Reliable)
+	void ReqDieProcess(USkeletalMeshComponent* skMesh);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RecDieProcess(USkeletalMeshComponent* skMesh);
+	
 	UFUNCTION()
 	void AddSkillDataToSkillManager(TArray<class ASkillBase*>& skillDatas);
 
@@ -117,6 +126,8 @@ public:
 	void OnUpdateMyMaxHp(float CurHp, float MaxHp);
 
 	void OnUpdateMyMaxHp_Implementation(float CurHp, float MaxHp);
+
+	void OnUpdateMyCurHp(float CurHp, float MaxHp);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateMyMaxMp(float CurMp, float MaxMp);
@@ -154,6 +165,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerCreateAndSyncWidget();
+
 
 	FTimerHandle th_BindMyStatManager;
 };

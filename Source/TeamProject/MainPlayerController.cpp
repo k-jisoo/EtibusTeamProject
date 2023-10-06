@@ -25,6 +25,7 @@
 #include "EnhancementPower.h"
 #include "EnhancementSpeed.h"
 #include "BaseCharacter.h"
+#include "MainGameMode.h"
 
 AMainPlayerController::AMainPlayerController()
 {
@@ -32,7 +33,7 @@ AMainPlayerController::AMainPlayerController()
 
 	StatManager = CreateDefaultSubobject<UStatManagementComponent>(TEXT("StatManager"));
 
-	// bReplicates = true;
+	IsAlive = true;
 }
 
 void AMainPlayerController::BeginPlay()
@@ -175,10 +176,6 @@ void AMainPlayerController::BindSkillSData()
 
 			OnUpdateSkills(RandSkills);
 
-			for (int i = 0; i < RandSkills.Num(); i++)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("%f"), RandSkills[i]->PartZ);
-			}
 
 			UE_LOG(LogTemp, Warning, TEXT("BindSkillSData Success"));
 		}
@@ -214,11 +211,6 @@ void AMainPlayerController::BindPlayerInfo()
 
 		OnUpdateMySkillLevel(AllSkillDatas);
 
-		for (int i = 0; i < AllSkillDatas.Num(); i++)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%f"), AllSkillDatas[i]->PartZ);
-		}
-
 		UE_LOG(LogTemp, Warning, TEXT("BindEnhancedItemData Success"));
 	}
 }
@@ -231,6 +223,8 @@ void AMainPlayerController::BindStatManagers()
 	{
 		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxHp);
 		OnUpdateMyMaxHp(StatManager->CurHp, StatManager->MaxHp);
+
+		statManager->Fuc_Dele_UpdateHp.AddDynamic(this, &AMainPlayerController::OnUpdateMyCurHp);
 
 		statManager->Fuc_Dele_UpdateMp.AddDynamic(this, &AMainPlayerController::OnUpdateMyMaxMp);
 		OnUpdateMyMaxMp(StatManager->CurMp, StatManager->MaxMp);
@@ -245,6 +239,31 @@ void AMainPlayerController::BindStatManagers()
 	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
 	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);*/
 }
+
+void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent* skMesh)
+{
+	skMesh->SetSimulatePhysics(true);
+
+	DisableInput(this);
+
+	IsAlive = false;
+
+	skMesh->SetCollisionProfileName(FName("Ragdoll"));
+
+	RecDieProcess(skMesh);
+}
+
+void AMainPlayerController::RecDieProcess_Implementation(USkeletalMeshComponent* skMesh)
+{
+	skMesh->SetSimulatePhysics(true);
+
+	DisableInput(this);
+
+	IsAlive = false;
+
+	skMesh->SetCollisionProfileName(FName("Ragdoll"));
+}
+
 
 void AMainPlayerController::AddSkillDataToSkillManager(TArray<class ASkillBase*>& SkillDatas)
 {
@@ -277,6 +296,15 @@ void AMainPlayerController::OnUpdateMyMaxHp_Implementation(float CurHp, float Ma
 {
 }
 
+void AMainPlayerController::OnUpdateMyCurHp(float CurHp, float MaxHp)
+{
+	if (CurHp <= 0)
+	{
+		ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
+		//MyChar->ReqDieProcess();
+	}
+}
+
 void AMainPlayerController::OnUpdateMyMaxMp_Implementation(float CurHp, float MaxHp)
 {
 }
@@ -305,6 +333,7 @@ void AMainPlayerController::GetSkill(ASkillBase* Skill)
 		UE_LOG(LogTemp, Warning, TEXT("Client: GetSkill"));
 		PlayerSkills.Add(Skill);
 	}
+
 }
 
 bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
@@ -331,6 +360,9 @@ bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
 
 	return false;
 }
+
+
+
 
 void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()
 {

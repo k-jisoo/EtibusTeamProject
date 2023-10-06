@@ -13,4 +13,15 @@ UCLASS()
 class TEAMPROJECT_API AMainGameMode : public AGameMode
 {
 	GENERATED_BODY()
+	
+public:
+	AMainGameMode();
+	
+	void GameOver();
+
+	void MoveToLobby();
+
+	FTimerHandle TH_Timer;
+
+	int DeadPlayerNum;
 };

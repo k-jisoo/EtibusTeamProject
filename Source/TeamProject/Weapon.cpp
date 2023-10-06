@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "DrawDebugHelpers.h"
+#include "StatManagementComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -69,7 +70,12 @@ void AWeapon::RecOnBoxComponentBeginOverlap_Implementation(AActor* OverlappedAct
 	if (!HitChar)
 		return;
 
-	UGameplayStatics::ApplyDamage(HitChar, OwnChar->Damage, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+	UStatManagementComponent* StatComponent = Cast<UStatManagementComponent>(OwnChar->FindComponentByClass<UStatManagementComponent>());
+
+	if (!StatComponent)
+		return;
+
+	UGameplayStatics::ApplyDamage(HitChar, StatComponent->Power, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
 
 	TArray<FHitResult> HitResults;
 	FVector StartLocation = OwnChar->GetActorLocation();
