@@ -18,19 +18,18 @@ APassiveSkillDefenseArea::APassiveSkillDefenseArea()
 
 	SkillArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = SkillArea;
-	PartX = 150;
-	PartY = 150;
-	PartZ = 150;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
+
+	CollisionSizeVector = FVector(150, 150, 150);
+	SkillArea->SetBoxExtent(CollisionSizeVector);
 	SkillArea->SetGenerateOverlapEvents(true);
 	SkillArea->SetCollisionProfileName("OverlapAllDynamic");
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
-	SkillSize = 1;
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
+	
+	SkillSizeVector = FVector(1, 1, 1);
+	SkillBody->SetRelativeScale3D(SkillSizeVector);
 	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
-	SkillBody->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
 
 	Damage = 3.0f;
 
@@ -65,8 +64,6 @@ void APassiveSkillDefenseArea::Tick(float DeltaTime)
 
 void APassiveSkillDefenseArea::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (HasAuthority() == false)
-		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("MeshBeginOverlap = %s"), *OtherActor->GetName());
 

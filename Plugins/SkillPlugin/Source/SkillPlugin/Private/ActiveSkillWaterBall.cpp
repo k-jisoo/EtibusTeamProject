@@ -17,29 +17,28 @@ AActiveSkillWaterBall::AActiveSkillWaterBall()
 
 	SkillArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	RootComponent = SkillArea;
-	PartX = 100;
-	PartY = 100;
-	PartZ = 100;
-	SkillArea->SetBoxExtent(FVector(PartX, PartY, PartZ));
+
+	CollisionSizeVector = FVector(100, 100, 100);
+	SkillArea->SetBoxExtent(CollisionSizeVector);
 	SkillArea->SetGenerateOverlapEvents(true);
 	SkillArea->SetCollisionProfileName("OverlapAllDynamic");
 
 	SkillBody = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle"));
 	SkillBody->SetupAttachment(SkillArea);
-	SkillSize = 1;
-	SkillBody->SetRelativeScale3D(FVector(SkillSize, SkillSize, SkillSize));
-	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, -100.0f));
+	SkillSizeVector = FVector(1, 1, 1);
+	SkillBody->SetRelativeScale3D(SkillSizeVector);
+	SkillBody->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 
 	SkillMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("SkillMovement"));
 	SkillMovement->SetUpdatedComponent(SkillArea);
 
 	SkillMovement->ProjectileGravityScale = 0;
-	SkillMovement->InitialSpeed = 500.0f;
-	SkillMovement->MaxSpeed = 500.0f;
+	SkillMovement->InitialSpeed = 800.0f;
+	SkillMovement->MaxSpeed = 800.0f;
 
 	Damage = 60.0f;
 
-	Price = 30;
+	Price = 40;
 
 	Cooldown = 10.0f;
 
@@ -74,8 +73,8 @@ void AActiveSkillWaterBall::Tick(float DeltaTime)
 
 void AActiveSkillWaterBall::ProcessBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (HasAuthority() == false)
-		return;
+	/*if (HasAuthority() == false)
+		return;*/
 
 	UE_LOG(LogTemp, Warning, TEXT("MeshBeginOverlap = %s"), *OtherActor->GetName());
 

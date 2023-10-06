@@ -176,10 +176,6 @@ void AMainPlayerController::BindSkillSData()
 
 			OnUpdateSkills(RandSkills);
 
-			for (int i = 0; i < RandSkills.Num(); i++)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("%f"), RandSkills[i]->PartZ);
-			}
 
 			UE_LOG(LogTemp, Warning, TEXT("BindSkillSData Success"));
 		}
@@ -214,11 +210,6 @@ void AMainPlayerController::BindPlayerInfo()
 		skillManager->Fuc_Dele_UpdateSkillLevel.AddDynamic(this, &AMainPlayerController::OnUpdateMySkillLevel);
 
 		OnUpdateMySkillLevel(AllSkillDatas);
-
-		for (int i = 0; i < AllSkillDatas.Num(); i++)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%f"), AllSkillDatas[i]->PartZ);
-		}
 
 		UE_LOG(LogTemp, Warning, TEXT("BindEnhancedItemData Success"));
 	}
@@ -345,6 +336,7 @@ void AMainPlayerController::GetSkill(ASkillBase* Skill)
 		UE_LOG(LogTemp, Warning, TEXT("Client: GetSkill"));
 		PlayerSkills.Add(Skill);
 	}
+
 }
 
 bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
@@ -371,6 +363,8 @@ bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
 
 	return false;
 }
+
+
 
 
 void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()

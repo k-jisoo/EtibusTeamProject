@@ -162,6 +162,7 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerCreateAndSyncWidget();
 
+
 	FTimerHandle th_BindMyStatManager;
 };
 
