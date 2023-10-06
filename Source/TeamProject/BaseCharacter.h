@@ -164,13 +164,13 @@ public:
 	void EventGetItem_Implementation(EItemType itemType) override;
 
 	UFUNCTION(Server, Reliable)
-	void ReqServerSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
+	void ReqServerSpawnSkillActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void ResSpawnSkillActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
+	void ResSpawnSkillActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 	UFUNCTION()
-	void SpawnActor(ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
+	void SpawnActor(AMainPlayerController* spawnUser, ASkillBase* spawnSkill, UBoxComponent* SkillArea, UParticleSystemComponent* SkillBody, float SkillDamage, FVector Collision, FVector skillSize);
 
 	UFUNCTION()
 	void OnRep_IsSimulatingPhysics();

@@ -21,7 +21,7 @@ USkillManagementComponent::USkillManagementComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
+
 }
 
 
@@ -51,6 +51,11 @@ void USkillManagementComponent::BeginPlay()
 	LightningLevel = 0;
 	StormLevel = 0;
 	WaterBallLevel = 0;
+
+	LightningCooldown = 10.0f;
+	StormCooldown = 15.0f;
+	DefenseAreaCooldown = 5.0f;
+	WaterBallCooldown = 7.0f;
 }
 
 
@@ -82,7 +87,7 @@ void USkillManagementComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 
 void USkillManagementComponent::SkillLevelUp(class ASkillBase* targetSkill)
-{	
+{
 	if (targetSkill == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("targetSkill is null"));
@@ -140,82 +145,95 @@ float USkillManagementComponent::GetSkillLevel(ASkillBase* targetSkill)
 	{
 		return 0.0f;
 	}
-	
-	
+
+
 }
 
 bool USkillManagementComponent::GetSkillColldown(ASkillBase* targetSkill)
 {
-	if (targetSkill == Lightning)
+	if (targetSkill == nullptr)
 	{
-		if (LightningCooldown == 10.0f)
+		return false;
+	}
+
+	if (targetSkill->SkillName == "Lightning")
+	{
+		if (LightningCooldown < 10.0f)
 		{
-			return true;
+			UE_LOG(LogTemp, Warning, TEXT("Can not Use Skill"));
+			return false;
 		}
 		else
 		{
-			return false;
+			UE_LOG(LogTemp, Warning, TEXT("Can Use Skill"));
+			return true;
 		}
 	}
-	else if (targetSkill == WaterBall)
+	else if (targetSkill->SkillName == "Water Ball")
 	{
-		if (WaterBallCooldown == 7.0f)
+		if (WaterBallCooldown < 7.0f)
 		{
-			return true;
+			return false;
 		}
 		else
 		{
-			return false;
+			return true;
 		}
 	}
-	else if (targetSkill == Storm)
+	else if (targetSkill->SkillName == "Fire Storm")
 	{
-		if (StormCooldown == 15.0f)
+		if (StormCooldown < 15.0f)
 		{
-			return true;
+			UE_LOG(LogTemp, Warning, TEXT("Can not Use Skill"));
+			return false;
 		}
 		else
 		{
-			return false;
+			UE_LOG(LogTemp, Warning, TEXT("Can Use Skill"));
+			return true;
 		}
 	}
-	else if (targetSkill == DefenseArea)
+	else if (targetSkill->SkillName == "Defense Area")
 	{
-		if (DefenseAreaCooldown == 5.0f)
+		if (DefenseAreaCooldown < 5.0f)
 		{
-			return true;
+			return false;
 		}
 		else
 		{
-			return false;
+			return true;
 		}
 	}
 	else
 	{
 		return false;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Input failed"));
+	return false;
 }
 
 void USkillManagementComponent::UsingSkill(ASkillBase* targetSkill)
 {
 	if (targetSkill == nullptr)
 	{
-		return;
+		UE_LOG(LogTemp, Warning, TEXT("Using Skill failed"))
+			return;
 	}
 
-	if (targetSkill == Lightning)
+	if (targetSkill->SkillName == "Lightning")
 	{
 		GetWorld()->GetTimerManager().SetTimer(LightningCooldownHandle, this, &USkillManagementComponent::LightningCooldownCounter, 1.0f, true);
 	}
-	else if (targetSkill == WaterBall)
+	else if (targetSkill->SkillName == "Water Ball")
 	{
 		GetWorld()->GetTimerManager().SetTimer(WaterBallCooldownHandle, this, &USkillManagementComponent::WaterBallCooldownCounter, 1.0f, true);
 	}
-	else if (targetSkill == Storm)
+	else if (targetSkill->SkillName == "Fire Storm")
 	{
 		GetWorld()->GetTimerManager().SetTimer(StormCooldownHandle, this, &USkillManagementComponent::StormCooldownCounter, 1.0f, true);
 	}
-	else if (targetSkill == DefenseArea)
+	else if (targetSkill->SkillName == "Defense Area")
 	{
 		GetWorld()->GetTimerManager().SetTimer(DefenseAreaCooldownHandle, this, &USkillManagementComponent::DefenseAreaCooldownCounter, 1.0f, true);
 	}
@@ -229,11 +247,12 @@ void USkillManagementComponent::LightningCooldownCounter()
 {
 	LightningCooldown -= 1;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), LightningCooldown);
+	OnRep_LightningCooldown();
 	if (LightningCooldown <= 0)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(LightningCooldownHandle); // 타이머 중지
-
 		LightningCooldown = 10;
+		OnRep_LightningCooldown();
 	}
 }
 
@@ -241,11 +260,12 @@ void USkillManagementComponent::StormCooldownCounter()
 {
 	StormCooldown -= 1;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), StormCooldown);
+	OnRep_StormCooldown();
 	if (StormCooldown <= 0)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(StormCooldownHandle); // 타이머 중지
-
 		StormCooldown = 15;
+		OnRep_StormCooldown();
 	}
 }
 
@@ -253,11 +273,12 @@ void USkillManagementComponent::WaterBallCooldownCounter()
 {
 	WaterBallCooldown -= 1;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), WaterBallCooldown);
+	OnRep_WaterBallCooldown();
 	if (WaterBallCooldown <= 0)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(WaterBallCooldownHandle); // 타이머 중지
-
 		WaterBallCooldown = 7;
+		OnRep_WaterBallCooldown();
 	}
 }
 
@@ -265,11 +286,12 @@ void USkillManagementComponent::DefenseAreaCooldownCounter()
 {
 	DefenseAreaCooldown -= 1;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), DefenseAreaCooldown);
+	OnRep_DefenseAreaCooldown();
 	if (DefenseAreaCooldown <= 0)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DefenseAreaCooldownHandle); // 타이머 중지
-
 		DefenseAreaCooldown = 5;
+		OnRep_DefenseAreaCooldown();
 	}
 }
 
@@ -314,6 +336,34 @@ void USkillManagementComponent::OnRep_SkillLevel()
 		Fuc_Dele_UpdateSkillLevel.Broadcast(SkillDatas);
 }
 
+
+void USkillManagementComponent::OnRep_LightningCooldown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_LightningCooldown"));
+	if (Fuc_Dele_UpdateLightningCooldown.IsBound())
+		Fuc_Dele_UpdateLightningCooldown.Broadcast(LightningCooldown);
+}
+
+void USkillManagementComponent::OnRep_DefenseAreaCooldown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_DefenseAreaCooldown"));
+	if (Fuc_Dele_UpdateDefenseAreaCooldown.IsBound())
+		Fuc_Dele_UpdateDefenseAreaCooldown.Broadcast(DefenseAreaCooldown);
+}
+
+void USkillManagementComponent::OnRep_WaterBallCooldown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_WaterBallCooldown"));
+	if (Fuc_Dele_UpdateWaterBallCooldown.IsBound())
+		Fuc_Dele_UpdateWaterBallCooldown.Broadcast(WaterBallCooldown);
+}
+
+void USkillManagementComponent::OnRep_StormCooldown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_DefenseAreaCooldown"));
+	if (Fuc_Dele_UpdateStormCooldown.IsBound())
+		Fuc_Dele_UpdateStormCooldown.Broadcast(StormCooldown);
+}
 
 
 
