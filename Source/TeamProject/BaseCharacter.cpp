@@ -65,14 +65,6 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-	AMainPlayerController* PC = Cast<AMainPlayerController>(GetController());
-
-	if (!PC)
-		return;
-
-	PC->ReqDieProcess(GetMesh());
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -84,7 +76,16 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 	StatComponent->CurHp -= DamageAmount;
 
-	return 0.0f;
+	if (StatComponent->CurHp <= 0)
+	{
+		AMainPlayerController* PC = Cast<AMainPlayerController>(this->GetController());
+
+		PC->ReqDieProcess(GetMesh());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), StatComponent->CurHp);
+
+	return DamageAmount;
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

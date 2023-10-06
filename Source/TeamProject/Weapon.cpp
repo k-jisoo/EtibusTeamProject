@@ -42,6 +42,7 @@ void AWeapon::SetSphereCollisionState(bool state)
 	if (state)
 	{
 		Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Box->SetCollisionProfileName(FName("OverlapAll"));
 	}
 	else
 	{
@@ -68,14 +69,22 @@ void AWeapon::RecOnBoxComponentBeginOverlap_Implementation(AActor* OverlappedAct
 	AEnemy* HitChar = Cast<AEnemy>(OtherActor);
 
 	if (!HitChar)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There's no HitChar"));
 		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("EnemyHit : %d"), HitChar->CurHp);
 
 	UStatManagementComponent* StatComponent = Cast<UStatManagementComponent>(OwnChar->FindComponentByClass<UStatManagementComponent>());
 
 	if (!StatComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There's no StatComponent"));
 		return;
+	}
 
-	UGameplayStatics::ApplyDamage(HitChar, StatComponent->Power, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+	UGameplayStatics::ApplyDamage(HitChar, 10.0f, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
 
 	TArray<FHitResult> HitResults;
 	FVector StartLocation = OwnChar->GetActorLocation();
@@ -96,7 +105,10 @@ void AWeapon::RecOnBoxComponentBeginOverlap_Implementation(AActor* OverlappedAct
 	bool bHit = GetWorld()->LineTraceMultiByObjectType(HitResults, StartLocation, EndLocation, collisionObjectQuery, CollisionParams);
 
 	if (!bHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There's no bHit"));
 		return;
+	}
 
 	for (int i = 0; i < HitResults.Num(); i++)
 	{
@@ -105,7 +117,11 @@ void AWeapon::RecOnBoxComponentBeginOverlap_Implementation(AActor* OverlappedAct
 		FRotator Rotation = HitNormal.Rotation();
 
 		if (!(OwnChar->HitParticle))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("There's no HitParticle"));
 			return;
+		}
 		UParticleSystemComponent* ParticleSystemComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OwnChar->HitParticle, ParticlePoint, Rotation, true);
+
 	}
 }

@@ -52,8 +52,6 @@ public:
 	UFUNCTION()
 	void OnRep_Power();
 
-	
-
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_CurHp)
 	float CurHp = 0.0f;
