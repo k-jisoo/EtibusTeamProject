@@ -85,6 +85,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	int32 Gold = 200;
 
+	int32 SkillArrNumCount = 0;
+
 public:
 	UFUNCTION()
 	void CreateSkillShopWidget();
@@ -176,9 +178,9 @@ public:
 	void OnUpdateMyGold_Implementation(int32 coin);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateSkillSlot(ASkillBase* skillData);
+	void OnUpdateSkillSlot(ASkillBase* skillData, int32 count);
 
-	void OnUpdateSkillSlot_Implementation(ASkillBase* skillData);
+	void OnUpdateSkillSlot_Implementation(ASkillBase* skillData, int32 count);
 
 	UFUNCTION(BlueprintCallable, Category = "Data")
 	void GetSkill(ASkillBase* Skill);

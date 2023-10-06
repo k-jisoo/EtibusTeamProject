@@ -88,8 +88,6 @@ void AMainPlayerController::BeginPlay()
 
 	PlayerSkills.Empty();
 
-	UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
-	UserInterfaceWidget->AddToViewport();
 
 	if (IsLocalController())
 	{
@@ -139,6 +137,9 @@ void AMainPlayerController::CreateSkillShopWidget()
 	{
 		if (MyController->IsLocalController()) // 현재 컨트롤러가 로컬 플레이어인지 확인
 		{
+			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+			UserInterfaceWidget->AddToViewport();
+
 			SkillShopWidget = CreateWidget<UUserWidget>(GetWorld(), SkillShopWidgetClass);
 
 			if (SkillShopWidget)
@@ -349,7 +350,7 @@ void AMainPlayerController::OnUpdateMyGold_Implementation(int32 coin)
 {
 }
 
-void AMainPlayerController::OnUpdateSkillSlot_Implementation(ASkillBase* skillData)
+void AMainPlayerController::OnUpdateSkillSlot_Implementation(ASkillBase* skillData, int32 count)
 {
 }
 
@@ -364,7 +365,8 @@ void AMainPlayerController::GetSkill(ASkillBase* Skill)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Client: GetSkill"));
 		PlayerSkills.Add(Skill);
-		OnUpdateSkillSlot(Skill);
+		SkillArrNumCount += 1;
+		OnUpdateSkillSlot(Skill, SkillArrNumCount);
 	}
 
 }
@@ -405,6 +407,9 @@ void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()
 		// 실제로 위젯을 생성하는 코드 작성
 		if (!SkillShopWidget)
 		{
+			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+			UserInterfaceWidget->AddToViewport();
+			
 			SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
 			if (SkillShopWidget)
 			{
@@ -433,6 +438,9 @@ void AMainPlayerController::MulticastOnWidgetCreated_Implementation()
 		SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
 		if (SkillShopWidget)
 		{
+			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+			UserInterfaceWidget->AddToViewport();
+			
 			SkillShopWidget->AddToViewport();
 
 			this->SetInputMode(FInputModeGameAndUI());
