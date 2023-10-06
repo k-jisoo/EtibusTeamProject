@@ -88,6 +88,9 @@ void AMainPlayerController::BeginPlay()
 
 	PlayerSkills.Empty();
 
+	UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+	UserInterfaceWidget->AddToViewport();
+
 	if (IsLocalController())
 	{
 		if (HasAuthority())
@@ -208,8 +211,19 @@ void AMainPlayerController::BindPlayerInfo()
 		USkillManagementComponent* skillManager = Cast<USkillManagementComponent>(GetWorld()->GetFirstPlayerController()->FindComponentByClass<USkillManagementComponent>());
 
 		skillManager->Fuc_Dele_UpdateSkillLevel.AddDynamic(this, &AMainPlayerController::OnUpdateMySkillLevel);
-
 		OnUpdateMySkillLevel(AllSkillDatas);
+
+		skillManager->Fuc_Dele_UpdateLightningCooldown.AddDynamic(this, &AMainPlayerController::OnUpdateLightningCooldown);
+		OnUpdateLightningCooldown(skillManager->LightningCooldown);
+
+		skillManager->Fuc_Dele_UpdateStormCooldown.AddDynamic(this, &AMainPlayerController::OnUpdateStormCooldown);
+		OnUpdateStormCooldown(skillManager->StormCooldown);
+
+		skillManager->Fuc_Dele_UpdateWaterBallCooldown.AddDynamic(this, &AMainPlayerController::OnUpdateWaterBallCooldown);
+		OnUpdateWaterBallCooldown(skillManager->WaterBallCooldown);
+
+		skillManager->Fuc_Dele_UpdateDefenseAreaCooldown.AddDynamic(this, &AMainPlayerController::OnUpdateDefenseAreaCooldown);
+		OnUpdateDefenseAreaCooldown(skillManager->DefenseAreaCooldown);
 
 		UE_LOG(LogTemp, Warning, TEXT("BindEnhancedItemData Success"));
 	}
@@ -236,8 +250,6 @@ void AMainPlayerController::BindStatManagers()
 		OnUpdateMyPower(StatManager->Power);
 	}
 
-	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
-	timerManager.SetTimer(th_BindMyStatManager, this, &AMainPlayerController::BindStatManagers, 0.1f, false);*/
 }
 
 void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent* skMesh)
@@ -317,7 +329,27 @@ void AMainPlayerController::OnUpdateMyPower_Implementation(float Power)
 {
 }
 
+void AMainPlayerController::OnUpdateStormCooldown_Implementation(float Power)
+{
+}
+
+void AMainPlayerController::OnUpdateLightningCooldown_Implementation(float Power)
+{
+}
+
+void AMainPlayerController::OnUpdateWaterBallCooldown_Implementation(float Power)
+{
+}
+
+void AMainPlayerController::OnUpdateDefenseAreaCooldown_Implementation(float Power)
+{
+}
+
 void AMainPlayerController::OnUpdateMyGold_Implementation(int32 coin)
+{
+}
+
+void AMainPlayerController::OnUpdateSkillSlot_Implementation(ASkillBase* skillData)
 {
 }
 
@@ -332,6 +364,7 @@ void AMainPlayerController::GetSkill(ASkillBase* Skill)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Client: GetSkill"));
 		PlayerSkills.Add(Skill);
+		OnUpdateSkillSlot(Skill);
 	}
 
 }

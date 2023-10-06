@@ -38,9 +38,15 @@ public:
 	class UStatManagementComponent* StatManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class UUserWidget> SkillShopWidgetClass;
+	TSubclassOf<class UUserWidget> UserInterfaceWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UUserWidget* UserInterfaceWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UUserWidget> SkillShopWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UUserWidget* SkillShopWidget;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
@@ -145,9 +151,34 @@ public:
 	void OnUpdateMyPower_Implementation(float Power);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateStormCooldown(float Power);
+
+	void OnUpdateStormCooldown_Implementation(float Power);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateLightningCooldown(float Power);
+
+	void OnUpdateLightningCooldown_Implementation(float Power);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateWaterBallCooldown(float Power);
+
+	void OnUpdateWaterBallCooldown_Implementation(float Power);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateDefenseAreaCooldown(float Power);
+
+	void OnUpdateDefenseAreaCooldown_Implementation(float Power);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateMyGold(int32 coin);
 
 	void OnUpdateMyGold_Implementation(int32 coin);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateSkillSlot(ASkillBase* skillData);
+
+	void OnUpdateSkillSlot_Implementation(ASkillBase* skillData);
 
 	UFUNCTION(BlueprintCallable, Category = "Data")
 	void GetSkill(ASkillBase* Skill);
