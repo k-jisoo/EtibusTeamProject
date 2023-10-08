@@ -86,16 +86,25 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (bLive == false)
 		return 0.0f;
 
-	AActor* actor = EventInstigator->GetPawn();
-
-	TArray<FName> ActorTags = actor->Tags;
-	for (FName Tag : ActorTags)
+	if (EventInstigator != nullptr)
 	{
-		if (Tag != "Player")
+		AActor* actor = EventInstigator->GetPawn();
+
+		TArray<FName> ActorTags = actor->Tags;
+		for (FName Tag : ActorTags)
 		{
-			return 0.0f;
+			if (Tag != "Player")
+			{
+				return 0.0f;
+			}
 		}
 	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEnemy::TakeDamage not has EventInstigator"));
+	}
+
+	
 
 	UpdateHp(DamageAmount * -1);
 
