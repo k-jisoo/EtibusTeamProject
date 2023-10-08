@@ -84,7 +84,10 @@ void AWeapon::RecOnBoxComponentBeginOverlap_Implementation(AActor* OverlappedAct
 		return;
 	}
 
-	UGameplayStatics::ApplyDamage(HitChar, 10.0f, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+	UGameplayStatics::ApplyDamage(HitChar, StatComponent->Power, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+
+	UE_LOG(LogTemp, Warning, TEXT("HitChar : %s"), *HitChar->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Power : %f"), StatComponent->Power);
 
 	TArray<FHitResult> HitResults;
 	FVector StartLocation = OwnChar->GetActorLocation();
