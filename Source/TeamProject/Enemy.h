@@ -61,7 +61,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* DieMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	TSubclassOf<class ADropItemActor> DropItem;
+
+
+
 	bool bLive;
+
+
 
 //Anim 관련
 public:

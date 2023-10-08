@@ -7,6 +7,8 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DropItemActor.h"
+
 
 // Sets default values
 AEnemy::AEnemy()
@@ -64,11 +66,15 @@ void AEnemy::Attack()
 //# 킬뎃 & 아이템
 void AEnemy::Die()
 {
-
+	
 	AIController = Cast<AEnemyAIController>(GetController());
 
 	AIController->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::MoveCrystal));
 	AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
+
+	ADropItemActor* Item = GetWorld()->SpawnActor<ADropItemActor>(DropItem, this->GetActorLocation(), this->GetActorRotation());
+
+	GetMesh()->SetCollisionProfileName("IgnoreOnlyPawn");
 
 	ReqPlayAnimMontage(DieMontage);
 }

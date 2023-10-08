@@ -57,7 +57,10 @@ void AItemBase::MeshBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	IItemInterface* InterfaceObj = Cast<IItemInterface>(OtherActor);
 
 	if (InterfaceObj == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InterfaceObj null"));
 		return;
+	}
 
 	InterfaceObj->Execute_EventGetItem(OtherActor, eItemType);
 
