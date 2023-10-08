@@ -7,10 +7,10 @@
 #include "SkillManagementComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_UpdateSkillLevel, const TArray<class ASkillBase*>&, skill);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateDefenseAreaCooldown, float, skillColldown);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateStormCooldown, float, skillColldown);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateLightningCooldown, float, skillColldown);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(Fuc_Dele_UpdateWaterBallCooldown, float, skillColldown);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(Fuc_Dele_UpdateDefenseAreaCooldown_ThreeParams, float, skillColldown, const TArray<class ASkillBase*>&, skill, ASkillBase*, defenseArea);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(Fuc_Dele_UpdateStormCooldown_ThreeParams, float, skillColldown, const TArray<class ASkillBase*>&, skill, ASkillBase*, storm);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(Fuc_Dele_UpdateLightningCooldown_ThreeParams, float, skillColldown, const TArray<class ASkillBase*>&, skill, ASkillBase*, lightning);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(Fuc_Dele_UpdateWaterBallCooldown_ThreeParams, float, skillColldown, const TArray<class ASkillBase*>&, skill, ASkillBase*, waterBall);
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	TArray<class ASkillBase*> SkillDatas;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	TArray<class ASkillBase*> PlayerSkills;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Data")
 	TArray<class ASkillBase*> RandomSkills;
@@ -119,24 +122,24 @@ public:
 	void OnRep_DefenseAreaCooldown();
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-	Fuc_Dele_UpdateDefenseAreaCooldown Fuc_Dele_UpdateDefenseAreaCooldown;
+	Fuc_Dele_UpdateDefenseAreaCooldown_ThreeParams Fuc_Dele_UpdateDefenseAreaCooldown;
 
 	UFUNCTION()
 	void OnRep_LightningCooldown();
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-	Fuc_Dele_UpdateLightningCooldown Fuc_Dele_UpdateLightningCooldown;
+	Fuc_Dele_UpdateLightningCooldown_ThreeParams Fuc_Dele_UpdateLightningCooldown;
 
 	UFUNCTION()
 	void OnRep_WaterBallCooldown();
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-	Fuc_Dele_UpdateWaterBallCooldown Fuc_Dele_UpdateWaterBallCooldown;
+	Fuc_Dele_UpdateWaterBallCooldown_ThreeParams Fuc_Dele_UpdateWaterBallCooldown;
 
 	UFUNCTION()
 	void OnRep_StormCooldown();
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-	Fuc_Dele_UpdateStormCooldown Fuc_Dele_UpdateStormCooldown;
+	Fuc_Dele_UpdateStormCooldown_ThreeParams Fuc_Dele_UpdateStormCooldown;
 
 };

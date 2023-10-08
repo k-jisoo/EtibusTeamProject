@@ -250,9 +250,9 @@ void USkillManagementComponent::LightningCooldownCounter()
 	OnRep_LightningCooldown();
 	if (LightningCooldown <= 0)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(LightningCooldownHandle); // 타이머 중지
-		LightningCooldown = 10;
 		OnRep_LightningCooldown();
+		LightningCooldown = 10;
+		GetWorld()->GetTimerManager().ClearTimer(LightningCooldownHandle); // 타이머 중지
 	}
 }
 
@@ -263,9 +263,9 @@ void USkillManagementComponent::StormCooldownCounter()
 	OnRep_StormCooldown();
 	if (StormCooldown <= 0)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(StormCooldownHandle); // 타이머 중지
-		StormCooldown = 15;
 		OnRep_StormCooldown();
+		StormCooldown = 15;
+		GetWorld()->GetTimerManager().ClearTimer(StormCooldownHandle); // 타이머 중지
 	}
 }
 
@@ -276,9 +276,9 @@ void USkillManagementComponent::WaterBallCooldownCounter()
 	OnRep_WaterBallCooldown();
 	if (WaterBallCooldown <= 0)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(WaterBallCooldownHandle); // 타이머 중지
-		WaterBallCooldown = 7;
 		OnRep_WaterBallCooldown();
+		WaterBallCooldown = 7;
+		GetWorld()->GetTimerManager().ClearTimer(WaterBallCooldownHandle); // 타이머 중지
 	}
 }
 
@@ -289,9 +289,9 @@ void USkillManagementComponent::DefenseAreaCooldownCounter()
 	OnRep_DefenseAreaCooldown();
 	if (DefenseAreaCooldown <= 0)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(DefenseAreaCooldownHandle); // 타이머 중지
-		DefenseAreaCooldown = 5;
 		OnRep_DefenseAreaCooldown();
+		DefenseAreaCooldown = 5;
+		GetWorld()->GetTimerManager().ClearTimer(DefenseAreaCooldownHandle); // 타이머 중지
 	}
 }
 
@@ -341,28 +341,28 @@ void USkillManagementComponent::OnRep_LightningCooldown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_LightningCooldown"));
 	if (Fuc_Dele_UpdateLightningCooldown.IsBound())
-		Fuc_Dele_UpdateLightningCooldown.Broadcast(LightningCooldown);
+		Fuc_Dele_UpdateLightningCooldown.Broadcast(LightningCooldown, PlayerSkills, Lightning);
 }
 
 void USkillManagementComponent::OnRep_DefenseAreaCooldown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_DefenseAreaCooldown"));
 	if (Fuc_Dele_UpdateDefenseAreaCooldown.IsBound())
-		Fuc_Dele_UpdateDefenseAreaCooldown.Broadcast(DefenseAreaCooldown);
+		Fuc_Dele_UpdateDefenseAreaCooldown.Broadcast(DefenseAreaCooldown, PlayerSkills, DefenseArea);
 }
 
 void USkillManagementComponent::OnRep_WaterBallCooldown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_WaterBallCooldown"));
 	if (Fuc_Dele_UpdateWaterBallCooldown.IsBound())
-		Fuc_Dele_UpdateWaterBallCooldown.Broadcast(WaterBallCooldown);
+		Fuc_Dele_UpdateWaterBallCooldown.Broadcast(WaterBallCooldown, PlayerSkills, WaterBall);
 }
 
 void USkillManagementComponent::OnRep_StormCooldown()
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnRep_DefenseAreaCooldown"));
 	if (Fuc_Dele_UpdateStormCooldown.IsBound())
-		Fuc_Dele_UpdateStormCooldown.Broadcast(StormCooldown);
+		Fuc_Dele_UpdateStormCooldown.Broadcast(StormCooldown, PlayerSkills, Storm);
 }
 
 
