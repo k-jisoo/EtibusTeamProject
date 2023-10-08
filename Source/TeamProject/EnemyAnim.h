@@ -42,7 +42,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 	UAnimMontage* AttackMontage;
 
-	void PlayAttackMontage();
-
 	bool bAttacking;
 };

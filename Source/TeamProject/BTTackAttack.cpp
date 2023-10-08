@@ -18,6 +18,8 @@ UBTTackAttack::UBTTackAttack()
 EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 
+	//UE_LOG(LogTemp, Warning, TEXT("Attack Tack"));
+
 	if (Controller == nullptr) 
 	{
 		Controller = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
@@ -32,6 +34,11 @@ EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		anim = Controller->anim;
 	}
 
+	if (me == nullptr)
+	{
+		me = Controller->me;
+	}
+
 	if (anim->bAttacking)
 	{
 		return EBTNodeResult::Failed;
@@ -39,7 +46,9 @@ EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	anim->bAttacking = true;
 
-	anim->PlayAttackMontage();
+	UE_LOG(LogTemp, Warning, TEXT("UBTTackAttack::ExecuteTask Attack!"));
+
+	me->Attack();
 
 	return EBTNodeResult::Succeeded;
 

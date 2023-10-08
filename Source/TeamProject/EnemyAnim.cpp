@@ -17,14 +17,6 @@ void UEnemyAnim::OnAttackEndAnimation()
 	bAttacking = false;
 }
 
-void UEnemyAnim::PlayAttackMontage()
-{
-	if (AttackMontage && AttackSequence) {
-		UAnimMontage* pAnimationMtg = PlaySlotAnimationAsDynamicMontage(AttackSequence, TEXT("DefaultSlot"), 0.3f, 0.3f, 1.0f);
-
-		Montage_Play(AttackMontage, 1);
-	}
-}
 
 
 

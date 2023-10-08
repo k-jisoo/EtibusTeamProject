@@ -28,13 +28,9 @@ AEnemy::AEnemy()
 	//AI생성 옵션 - 앞으로 생성되는 AEnemy마다 AI를 잡아줌
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	Controller = Cast<AEnemyAIController>(AIControllerClass);
-
 	MaxHp = 100;
 
 	CurHp = 100;
-
-	
 
 }
 
@@ -60,47 +56,86 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AEnemy::Attack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Take Damage!"));
-
-	/*if (bLive == false)
-		return 0.0f;
-
-	if (CurHp < DamageAmount) {
-		bLive = false;
-	}
-	
-
-	if (EventInstigator == nullptr)
-	{
-		return 0.0f;
-	}*/
-
-	//Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Damage));
-		
-	UpdateHp(DamageAmount * -1);
-
-	UE_LOG(LogTemp, Warning, TEXT("has Damage = %d"), DamageAmount);
-
-	ReqPlayAnimMontage(DamageMontage);
-
-	return DamageAmount;
+	ReqPlayAnimMontage(AttackMontage);
 }
 
+//# 킬뎃 & 아이템
 void AEnemy::Die()
 {
-	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Die));
+
+	AIController = Cast<AEnemyAIController>(GetController());
+
+	AIController->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::MoveCrystal));
+	AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
+
+	ReqPlayAnimMontage(DieMontage);
+}
+
+
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+
+	if (bLive == false)
+		return 0.0f;
+
+	AActor* actor = EventInstigator->GetPawn();
+
+	TArray<FName> ActorTags = actor->Tags;
+	for (FName Tag : ActorTags)
+	{
+		if (Tag != "Player")
+		{
+			return 0.0f;
+		}
+	}
+
+	UpdateHp(DamageAmount * -1);
+
+	UE_LOG(LogTemp, Warning, TEXT("has Damage = %f"), DamageAmount);
+
+	return DamageAmount;
 }
 
 void AEnemy::UpdateHp(float Amount)
 {
 	CurHp += Amount;
+
 	CurHp = FMath::Clamp(CurHp, 0.0f, MaxHp);
+
+	UE_LOG(LogTemp, Warning, TEXT("Enemy CurHP = %f"), CurHp);
+
+	if (CurHp <= 0)
+	{
+		bLive = false;
+
+		if (DieMontage != nullptr)
+		{
+			Die(); 
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AEnemy::UpdateHp() : not has DieMontage!"));
+		}
+	}
+	else 
+	{
+		if (DamageMontage != nullptr)
+		{
+			ReqPlayAnimMontage(DamageMontage);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AEnemy::UpdateHp() : not has DamageMontage!"));
+		}
+	}
 }
 
 void AEnemy::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)
 {
+	UE_LOG(LogTemp,Warning,TEXT("ReqPlayAnimMontage"));
+
 	ClientPlayAnimMontage(animMontage);
 }
 
