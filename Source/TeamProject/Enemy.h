@@ -72,6 +72,9 @@ public:
 	float AttackRangeByCrystal;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UAnimMontage* DamageMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* DieMontage;
 
 	bool bLive;
