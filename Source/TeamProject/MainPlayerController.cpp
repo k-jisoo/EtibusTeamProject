@@ -263,6 +263,13 @@ void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent*
 	skMesh->SetCollisionProfileName(FName("Ragdoll"));
 
 	RecDieProcess(skMesh);
+
+	if (HasAuthority())
+	{
+		AMainGameMode* GM = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+
+		GM->GameOver();
+	}
 }
 
 void AMainPlayerController::RecDieProcess_Implementation(USkeletalMeshComponent* skMesh)
