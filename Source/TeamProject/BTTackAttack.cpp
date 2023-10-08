@@ -39,7 +39,7 @@ EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	anim->bAttacking = true;
 
-	anim->ReqPlayAttackMontage();
+	anim->PlayAttackMontage();
 
 	return EBTNodeResult::Succeeded;
 

@@ -72,7 +72,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	}
 
 	// # Ible로 변경 후 자동 Move설정
-	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Ible));
+	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Die));
 
 	
 

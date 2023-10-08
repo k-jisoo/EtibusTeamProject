@@ -30,6 +30,8 @@ public:
 
 public:
 
+	class AEnemyAIController* Controller;
+
 	//FOnAttackEndDelegate OnAttackEnd;
 
 	//UFUNCTION(BlueprintCallable, Category = AnimMontage)
@@ -43,9 +45,9 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
 	class AController* EventInstigator, AActor* DamageCauser) override;
 
-protected:
+	void Die();
 
-	void UpdateHp(float Amount);
+
 
 // 적 옵션 관련
 public:
@@ -69,8 +71,25 @@ public:
 
 	float AttackRangeByCrystal;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UAnimMontage* DieMontage;
+
+	bool bLive;
+
 //Anim 관련
 public:
 	class UEnemyAnim* anim;
+
+	
+public :
+	UFUNCTION(Server, Reliable)
+	void ReqPlayAnimMontage(UAnimMontage* animMontage);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ClientPlayAnimMontage(UAnimMontage* animMontage);
+
+protected:
+
+	void UpdateHp(float Amount);
 
 };
