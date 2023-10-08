@@ -35,7 +35,7 @@ EBTNodeResult::Type UBTTaskAttackCrystal::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	anim->bAttacking = true;
 
-	anim->ReqPlayAttackMontage();
+	anim->PlayAttackMontage();
 
 	return EBTNodeResult::Succeeded;
 

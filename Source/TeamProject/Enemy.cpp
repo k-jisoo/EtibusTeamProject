@@ -4,6 +4,8 @@
 #include "Enemy.h"
 #include "EnemyAIController.h"
 #include "EnemyAnim.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -25,6 +27,8 @@ AEnemy::AEnemy()
 	AIControllerClass = AEnemyAIController::StaticClass();
 	//AI생성 옵션 - 앞으로 생성되는 AEnemy마다 AI를 잡아줌
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	Controller = Cast<AEnemyAIController>(AIControllerClass);
 
 	MaxHp = 100;
 
@@ -52,16 +56,23 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-//void AEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-//{
-//	OnAttackEnd.Broadcast();
-//}
-
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (EventInstigator == nullptr)
+	if (bLive == false)
 		return 0.0f;
 
+	if (CurHp < DamageAmount) {
+		bLive = false;
+	}
+	
+
+	if (EventInstigator == nullptr)
+	{
+		return 0.0f;
+	}
+
+	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Damage));
+		
 	UpdateHp(DamageAmount * -1);
 
 	UE_LOG(LogTemp, Warning, TEXT("has Damage = %d"), DamageAmount);
@@ -69,8 +80,24 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
+void AEnemy::Die()
+{
+	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Die));
+}
+
 void AEnemy::UpdateHp(float Amount)
 {
 	CurHp += Amount;
 	CurHp = FMath::Clamp(CurHp, 0.0f, MaxHp);
 }
+
+void AEnemy::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)
+{
+	ClientPlayAnimMontage(animMontage);
+}
+
+void AEnemy::ClientPlayAnimMontage_Implementation(UAnimMontage* animMontage)
+{
+	this->PlayAnimMontage(animMontage);
+}
+

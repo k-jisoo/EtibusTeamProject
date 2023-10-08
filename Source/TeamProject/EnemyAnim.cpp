@@ -2,7 +2,10 @@
 
 
 #include "EnemyAnim.h"
+#include "Enemy.h"
 #include "EnemyAIController.h"
+#include "Net/UnrealNetwork.h"
+
 
 UEnemyAnim::UEnemyAnim()
 {
@@ -14,18 +17,14 @@ void UEnemyAnim::OnAttackEndAnimation()
 	bAttacking = false;
 }
 
-void UEnemyAnim::ReqPlayAttackMontage_Implementation()
+void UEnemyAnim::PlayAttackMontage()
 {
-	ResPlayAttackMontage();
-}
-
-void UEnemyAnim::ResPlayAttackMontage_Implementation()
-{
-	//req res 만들기
-	//res 
 	if (AttackMontage && AttackSequence) {
 		UAnimMontage* pAnimationMtg = PlaySlotAnimationAsDynamicMontage(AttackSequence, TEXT("DefaultSlot"), 0.3f, 0.3f, 1.0f);
 
 		Montage_Play(AttackMontage, 1);
 	}
 }
+
+
+

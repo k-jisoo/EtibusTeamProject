@@ -18,7 +18,7 @@ class TEAMPROJECT_API UEnemyAnim : public UAnimInstance
 public:
 	UEnemyAnim();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AIController)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EEnemyState animState;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AIController)
@@ -42,12 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 	UAnimMontage* AttackMontage;
 
-	UFUNCTION(Server, Reliable)
-	void ReqPlayAttackMontage();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ResPlayAttackMontage();
+	void PlayAttackMontage();
 
 	bool bAttacking;
-
 };
