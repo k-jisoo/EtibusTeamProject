@@ -153,24 +153,24 @@ public:
 	void OnUpdateMyPower_Implementation(float Power);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateStormCooldown(float Power);
+	void OnUpdateStormCooldown(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
-	void OnUpdateStormCooldown_Implementation(float Power);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateLightningCooldown(float Power);
-
-	void OnUpdateLightningCooldown_Implementation(float Power);
+	void OnUpdateStormCooldown_Implementation(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateWaterBallCooldown(float Power);
+	void OnUpdateLightningCooldown(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
-	void OnUpdateWaterBallCooldown_Implementation(float Power);
+	void OnUpdateLightningCooldown_Implementation(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void OnUpdateDefenseAreaCooldown(float Power);
+	void OnUpdateWaterBallCooldown(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
-	void OnUpdateDefenseAreaCooldown_Implementation(float Power);
+	void OnUpdateWaterBallCooldown_Implementation(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnUpdateDefenseAreaCooldown(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
+
+	void OnUpdateDefenseAreaCooldown_Implementation(float skillcooldown, const TArray<class ASkillBase*>& SkillDatas, ASkillBase* skillData);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnUpdateMyGold(int32 coin);
