@@ -52,8 +52,6 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 		return;
 	}
 
-
-
 	anim = Cast<UEnemyAnim>(me->GetMesh()->GetAnimInstance());
 	if (anim != nullptr) 
 	{
@@ -72,9 +70,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	}
 
 	// # Ible로 변경 후 자동 Move설정
-	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Die));
-
-	
+	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Ible));
 
 }
 
@@ -146,7 +142,6 @@ void AEnemyAIController::OnTargetAttack(AActor* actor, FAIStimulus const Stimulu
 void AEnemyAIController::UpdatedTarget(AActor* actor)
 {
 	// 한번 발견한 대상을 잊어버리기 까지 쫒아가고 잊어버리면 바로 크리스탈쪽으로 이동하는 로직
-	
 
 	if (BlackboardComp->GetValueAsObject(TargetKey) == nullptr) 
 	{

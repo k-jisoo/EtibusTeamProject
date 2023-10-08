@@ -34,12 +34,16 @@ AEnemy::AEnemy()
 
 	CurHp = 100;
 
+	
+
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bLive = true;
 
 }
 
@@ -58,7 +62,9 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (bLive == false)
+	UE_LOG(LogTemp, Warning, TEXT("Take Damage!"));
+
+	/*if (bLive == false)
 		return 0.0f;
 
 	if (CurHp < DamageAmount) {
@@ -69,13 +75,15 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	if (EventInstigator == nullptr)
 	{
 		return 0.0f;
-	}
+	}*/
 
-	Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Damage));
+	//Controller->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::Damage));
 		
 	UpdateHp(DamageAmount * -1);
 
 	UE_LOG(LogTemp, Warning, TEXT("has Damage = %d"), DamageAmount);
+
+	ReqPlayAnimMontage(DamageMontage);
 
 	return DamageAmount;
 }
