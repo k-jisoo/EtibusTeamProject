@@ -2,6 +2,7 @@
 
 
 #include "BTTaskAttackCrystal.h"
+#include "Enemy.h"
 #include "EnemyAnim.h"
 #include "EnemyAIController.h"
 
@@ -33,9 +34,14 @@ EBTNodeResult::Type UBTTaskAttackCrystal::ExecuteTask(UBehaviorTreeComponent& Ow
 		return EBTNodeResult::Failed;
 	}
 
+	if (me == nullptr)
+	{
+		me = Controller->me;
+	}
+
 	anim->bAttacking = true;
 
-	anim->PlayAttackMontage();
+	me->Attack();
 
 	return EBTNodeResult::Succeeded;
 

@@ -36,7 +36,7 @@ EBTNodeResult::Type UBTTaskDie::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 		UE_LOG(LogTemp, Warning, TEXT("BTTackDie : ExactCuteTask Can not find DieMontage"))
 	}
 
-	me->ReqPlayAnimMontage(me->DieMontage);
+	//me->ReqPlayAnimMontage(me->DieMontage);
 
 	return EBTNodeResult::Succeeded;
 }

@@ -28,27 +28,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:
-
-	class AEnemyAIController* Controller;
-
-	//FOnAttackEndDelegate OnAttackEnd;
-
-	//UFUNCTION(BlueprintCallable, Category = AnimMontage)
-	//void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	//class UCharacterMovementComponent* Movement;
-
-//데미지 관련
-public:
-
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
-	class AController* EventInstigator, AActor* DamageCauser) override;
-
-	void Die();
-
-
-
 // 적 옵션 관련
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=EnemyOption)
@@ -71,6 +50,11 @@ public:
 
 	float AttackRangeByCrystal;
 
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UAnimMontage* AttackMontage;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UAnimMontage* DamageMontage;
 
@@ -83,13 +67,25 @@ public:
 public:
 	class UEnemyAnim* anim;
 
-	
+	class AEnemyAIController* AIController;
+
+//Anim 관련 함수
 public :
+
+	void Attack();
+
+	void Die();
+
 	UFUNCTION(Server, Reliable)
 	void ReqPlayAnimMontage(UAnimMontage* animMontage);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void ClientPlayAnimMontage(UAnimMontage* animMontage);
+
+public:
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 

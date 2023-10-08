@@ -22,4 +22,6 @@ public:
 	class AEnemyAIController* Controller;
 
 	class UEnemyAnim* anim;
+
+	class AEnemy* me;
 };

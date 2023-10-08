@@ -72,6 +72,8 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	// # Ible로 변경 후 자동 Move설정
 	BlackboardComp->SetValueAsEnum(State, static_cast<uint8>(EEnemyState::Ible));
 
+	BlackboardComp->SetValueAsBool(TEXT("bLive"), true);
+
 }
 
 void AEnemyAIController::SetPerceptionSystem()
@@ -105,6 +107,7 @@ void AEnemyAIController::SetPerceptionSystem()
 
 void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimulus)
 {
+
 	//만났을 때 Player일 경우 지속
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) 
