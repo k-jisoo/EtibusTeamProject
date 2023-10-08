@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "EnemyAIController.h"
 
+
 UBTTaskDie::UBTTaskDie()
 {
 	NodeName = TEXT("BBTackDie");
@@ -32,9 +33,9 @@ EBTNodeResult::Type UBTTaskDie::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 		return EBTNodeResult::Failed;
 	}
 
-	if (me->DieMontage == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("BTTackDie : ExactCuteTask Can not find DieMontage"))
-	}
+	
+
+
 
 	//me->ReqPlayAnimMontage(me->DieMontage);
 

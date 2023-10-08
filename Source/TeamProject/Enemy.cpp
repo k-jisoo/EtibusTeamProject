@@ -8,11 +8,14 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DropItemActor.h"
+#include <Components/CapsuleComponent.h>
+#include "Engine/World.h"
 
 
 // Sets default values
 AEnemy::AEnemy()
 {
+	
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	// 추후 false 수정 예정
 	PrimaryActorTick.bCanEverTick = true;
@@ -74,9 +77,17 @@ void AEnemy::Die()
 
 	ADropItemActor* Item = GetWorld()->SpawnActor<ADropItemActor>(DropItem, this->GetActorLocation(), this->GetActorRotation());
 
-	GetMesh()->SetCollisionProfileName("IgnoreOnlyPawn");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AEnemy::DestoryCharactor, 5.0f , false);
 
 	ReqPlayAnimMontage(DieMontage);
+}
+
+void AEnemy::DestoryCharactor()
+{
+	Destroy();
 }
 
 

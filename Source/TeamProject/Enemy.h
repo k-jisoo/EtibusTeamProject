@@ -83,6 +83,8 @@ public :
 
 	void Die();
 
+	void DestoryCharactor();
+
 	UFUNCTION(Server, Reliable)
 	void ReqPlayAnimMontage(UAnimMontage* animMontage);
 
