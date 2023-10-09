@@ -119,6 +119,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 			if (Tag != "Player")
 			{
 				return 0.0f;
+
 			}
 		}
 	}
@@ -126,8 +127,6 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AEnemy::TakeDamage not has EventInstigator"));
 	}
-
-	
 
 	UpdateHp(DamageAmount * -1);
 
@@ -177,4 +176,3 @@ void AEnemy::ClientPlayAnimMontage_Implementation(UAnimMontage* animMontage)
 {
 	this->PlayAnimMontage(animMontage);
 }
-
