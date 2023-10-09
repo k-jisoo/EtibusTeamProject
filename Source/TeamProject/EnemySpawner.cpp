@@ -20,7 +20,7 @@ void AEnemySpawner::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(Th_SpeedHandle, [&]()
 		{
 			ReqSpawnEnemy();
-		}, 3.0f, true);
+		}, SpawnDelay, SpawnRoop);
 }
 
 // Called every frame
@@ -33,14 +33,6 @@ void AEnemySpawner::Tick(float DeltaTime)
 void AEnemySpawner::SpawnEnemy()
 {
 	AEnemy* SpawnEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, GetActorLocation(), GetActorRotation());
-	if (!SpawnEnemy)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AEnemySpawner::SpawnEnemy : not spawn Enemy"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy it"));
-	}
 }
 
 void AEnemySpawner::ReqSpawnEnemy_Implementation()

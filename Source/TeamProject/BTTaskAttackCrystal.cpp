@@ -15,34 +15,13 @@ UBTTaskAttackCrystal::UBTTaskAttackCrystal()
 
 EBTNodeResult::Type UBTTaskAttackCrystal::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	if (Controller == nullptr)
-	{
-		Controller = Cast<AEnemyAIController>(OwnerComp.GetAIOwner());
-		if (Controller == nullptr)
-		{
-			return EBTNodeResult::Failed;
-		}
-	}
+    AEnemy* Enemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetPawn());
 
-	if (anim == nullptr)
-	{
-		anim = Controller->anim;
-	}
+    if (Enemy && Enemy->bAttacking == false)
+    {
+        Enemy->Attack();
+    }
 
-	if (me == nullptr)
-	{
-		me = Controller->me;
-	}
-
-	if (anim->bAttacking)
-	{
-		return EBTNodeResult::Failed;
-	}
-
-	anim->bAttacking = true;
-
-	me->Attack();
-
-	return EBTNodeResult::Succeeded;
+    return EBTNodeResult::Failed;
 
 }

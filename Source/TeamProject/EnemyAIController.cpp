@@ -107,7 +107,8 @@ void AEnemyAIController::SetPerceptionSystem()
 
 void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimulus)
 {
-
+	if (BlackboardComp->GetValueAsEnum("State") == static_cast<uint8>(EEnemyState::AttackCrystal))
+		return;
 	//만났을 때 Player일 경우 지속
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) 
@@ -128,10 +129,6 @@ void AEnemyAIController::OnTargetDetected(AActor* actor, FAIStimulus const Stimu
 
 void AEnemyAIController::OnTargetAttack(AActor* actor, FAIStimulus const Stimulus)
 {
-	/*if (BlackboardComp->GetValueAsEnum(State) != static_cast<uint8>(EEnemyState::MoveTarget))
-		UE_LOG(LogTemp, Warning, TEXT("GetValueAsEnum(State) != static_cast<uint8>(EEnemyState::MoveTarget)"));
-		return;*/
-	// 가까운 공격범위 내에 플래이어 발견시 공격
 	TArray<FName> ActorTags = actor->Tags;
 	for (FName Tag : ActorTags) {
 		if (Tag == "Player") {

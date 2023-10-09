@@ -40,4 +40,10 @@ public:
 
 	FTimerHandle Th_SpeedHandle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Categroy=Spawn)
+	float SpawnDelay = 3.0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Categroy = Spawn)
+	bool SpawnRoop = true;
+
 };

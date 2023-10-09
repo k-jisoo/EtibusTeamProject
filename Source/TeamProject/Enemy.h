@@ -62,7 +62,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	TSubclassOf<class ADropItemActor> DropItem;
 
-
+	bool bAttacking;
 
 	bool bLive;
 

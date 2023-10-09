@@ -9,12 +9,13 @@
 
 UEnemyAnim::UEnemyAnim()
 {
-
+	
 }
 
 void UEnemyAnim::OnAttackEndAnimation()
 {
-	bAttacking = false;
+	me = Cast<AEnemy>(TryGetPawnOwner());
+	me->bAttacking = false;
 }
 
 

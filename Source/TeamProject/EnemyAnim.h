@@ -18,6 +18,8 @@ class TEAMPROJECT_API UEnemyAnim : public UAnimInstance
 public:
 	UEnemyAnim();
 
+	class AEnemy* me;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EEnemyState animState;
 
