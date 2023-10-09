@@ -87,7 +87,19 @@ void AEnemy::Die()
 
 void AEnemy::DestoryCharactor()
 {
-	Destroy();
+	FTimerHandle TimerHandle;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AEnemy::DestoryCharactor, 0.1f, false);
+
+	FVector p0 = GetActorLocation();
+	FVector vt = FVector::DownVector * 50.0f * 0.1f;
+	FVector p = p0 + vt;
+	SetActorLocation(p);
+
+	if (p.Z < -200.0f)
+	{
+		Destroy();
+	}
 }
 
 
@@ -119,8 +131,6 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 
 	UpdateHp(DamageAmount * -1);
 
-	UE_LOG(LogTemp, Warning, TEXT("has Damage = %f"), DamageAmount);
-
 	return DamageAmount;
 }
 
@@ -130,7 +140,7 @@ void AEnemy::UpdateHp(float Amount)
 
 	CurHp = FMath::Clamp(CurHp, 0.0f, MaxHp);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy CurHP = %f"), CurHp);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy HP = %f"), CurHp);
 
 	if (CurHp <= 0)
 	{
@@ -160,8 +170,6 @@ void AEnemy::UpdateHp(float Amount)
 
 void AEnemy::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)
 {
-	UE_LOG(LogTemp,Warning,TEXT("ReqPlayAnimMontage"));
-
 	ClientPlayAnimMontage(animMontage);
 }
 

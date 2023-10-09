@@ -80,6 +80,8 @@ float ACrystal::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 void ACrystal::Die()
 {
 	bLive = false;
+
+	Destroy();
 }
 
 void ACrystal::UpdateHp(float Amount)
