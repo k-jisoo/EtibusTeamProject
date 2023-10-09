@@ -77,7 +77,7 @@ void UEnemyAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
         // 충돌하지 않은 경우 처리
     }
 
-    bool bDrawDebug = true;
+    bool bDrawDebug = false;
     // (디버깅 용) 스피어 트레이스를 시각적으로 표시
     if (bDrawDebug)
     {
