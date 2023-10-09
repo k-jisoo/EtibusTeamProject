@@ -17,6 +17,8 @@ class TEAMPROJECT_API AMainGameMode : public AGameMode
 public:
 	AMainGameMode();
 	
+	void RoundFinished();
+
 	void GameOver();
 
 	void MoveToLobby();
@@ -24,4 +26,8 @@ public:
 	FTimerHandle TH_Timer;
 
 	int DeadPlayerNum;
+
+	int MonsterCnt;
+
+	int KillCnt;
 };
