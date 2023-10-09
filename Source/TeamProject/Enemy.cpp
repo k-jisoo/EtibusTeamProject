@@ -71,8 +71,12 @@ void AEnemy::Die()
 {
 	
 	AIController = Cast<AEnemyAIController>(GetController());
+	if (AIController == nullptr)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("AEnemy::Die : not Find Controller"))
+		return;
+	}
 
-	AIController->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::MoveCrystal));
 	AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
 
 	ADropItemActor* Item = GetWorld()->SpawnActor<ADropItemActor>(DropItem, this->GetActorLocation(), this->GetActorRotation());
