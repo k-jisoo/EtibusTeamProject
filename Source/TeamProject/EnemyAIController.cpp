@@ -84,7 +84,7 @@ void AEnemyAIController::SetPerceptionSystem()
 	SightConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 	SightConfig->SightRadius = Sight;
 	SightConfig->LoseSightRadius = SightConfig->SightRadius;
-	SightConfig->PeripheralVisionAngleDegrees = 180.0f;
+	SightConfig->PeripheralVisionAngleDegrees = 360.0f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
@@ -96,7 +96,7 @@ void AEnemyAIController::SetPerceptionSystem()
 	AttackConfig = CreateOptionalDefaultSubobject<UAISenseConfig_Sight>(TEXT("AttackConfig"));
 	AttackConfig->SightRadius = AttackRange;
 	AttackConfig->LoseSightRadius = AttackConfig->SightRadius;
-	AttackConfig->PeripheralVisionAngleDegrees = 180.0f;
+	AttackConfig->PeripheralVisionAngleDegrees = 360.0f;
 	AttackConfig->DetectionByAffiliation.bDetectEnemies = true;
 	AttackConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	AttackConfig->DetectionByAffiliation.bDetectFriendlies = true;
