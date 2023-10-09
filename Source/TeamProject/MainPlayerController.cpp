@@ -258,7 +258,10 @@ void AMainPlayerController::BindStatManagers()
 
 void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent* skMesh)
 {
+	FVector ActorLoc = GetCharacter()->GetActorLocation();
+
 	skMesh->SetSimulatePhysics(true);
+	skMesh->SetWorldLocation(ActorLoc);
 
 	DisableInput(this);
 
@@ -278,7 +281,10 @@ void AMainPlayerController::ReqDieProcess_Implementation(USkeletalMeshComponent*
 
 void AMainPlayerController::RecDieProcess_Implementation(USkeletalMeshComponent* skMesh)
 {
+	FVector ActorLoc = GetCharacter()->GetActorLocation();
+
 	skMesh->SetSimulatePhysics(true);
+	skMesh->SetWorldLocation(ActorLoc);
 
 	DisableInput(this);
 
@@ -321,11 +327,6 @@ void AMainPlayerController::OnUpdateMyMaxHp_Implementation(float CurHp, float Ma
 
 void AMainPlayerController::OnUpdateMyCurHp(float CurHp, float MaxHp)
 {
-	if (CurHp <= 0)
-	{
-		ABaseCharacter* MyChar = Cast<ABaseCharacter>(GetPawn());
-		//MyChar->ReqDieProcess();
-	}
 }
 
 void AMainPlayerController::OnUpdateMyMaxMp_Implementation(float CurHp, float MaxHp)

@@ -10,6 +10,7 @@
 #include "DropItemActor.h"
 #include <Components/CapsuleComponent.h>
 #include "Engine/World.h"
+#include "MainGameMode.h"
 
 
 // Sets default values
@@ -71,14 +72,12 @@ void AEnemy::Die()
 {
 	
 	AIController = Cast<AEnemyAIController>(GetController());
-	if (AIController == nullptr)
+	if (AIController != nullptr)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("AEnemy::Die : not Find Controller"))
-		return;
+		AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
 	}
 
-	AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
-
+	
 	ADropItemActor* Item = GetWorld()->SpawnActor<ADropItemActor>(DropItem, this->GetActorLocation(), this->GetActorRotation());
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -87,6 +86,25 @@ void AEnemy::Die()
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &AEnemy::DestoryCharactor, 5.0f , false);
 
 	ReqPlayAnimMontage(DieMontage);
+
+	AMainGameMode* GM = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+
+	if(HasAuthority())
+	{
+		if (!GM)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GM Null"));
+			return;
+		}
+	}
+	else
+	{
+		return;
+	}
+
+	GM->KillCnt++;
+	UE_LOG(LogTemp, Warning, TEXT("KillCnt = %d"), GM->KillCnt);
+	GM->RoundFinished();
 }
 
 void AEnemy::DestoryCharactor()
