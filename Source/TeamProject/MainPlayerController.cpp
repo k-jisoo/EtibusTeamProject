@@ -88,20 +88,22 @@ void AMainPlayerController::BeginPlay()
 
 	PlayerSkills.Empty();
 
-
 	if (IsLocalController())
 	{
 		if (HasAuthority())
 		{
-			ServerCreateAndSyncWidget();
-			
+			ServerCreateAndSyncUIWidget();
+
 		}
-		else if(!HasAuthority())
+		else if (!HasAuthority())
 		{
-			CreateSkillShopWidget();
+			CreateUIWidget();
 		}
-		
+
 	}
+
+	// 상점 여는 함수
+	// OpenSkillShop();
 }
 
 void AMainPlayerController::InitCharacter()
@@ -409,6 +411,51 @@ bool AMainPlayerController::IsCanUseSkill(ASkillBase* Skill)
 	return false;
 }
 
+void AMainPlayerController::ClientCreateAndSyncUIWidget_Implementation()
+{
+	if (!HasAuthority())
+	{
+		// 서버에서 위젯을 생성하고 클라이언트에 동기화하는 RPC 호출
+		ServerCreateAndSyncUIWidget();
+	}
+}
+
+void AMainPlayerController::MulticastOnUIWidgetCreated_Implementation()
+{
+	if (HasAuthority())
+	{
+		UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+		UserInterfaceWidget->AddToViewport();
+
+		if (UserInterfaceWidget)
+		{
+			this->SetInputMode(FInputModeGameOnly());
+			this->bShowMouseCursor = false;
+
+			BindStatManagers();
+		}
+	}
+}
+
+void AMainPlayerController::ServerCreateAndSyncUIWidget_Implementation()
+{
+	if (HasAuthority())
+	{
+		UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+		UserInterfaceWidget->AddToViewport();
+
+		if (UserInterfaceWidget)
+		{
+			this->SetInputMode(FInputModeGameOnly());
+			this->bShowMouseCursor = false;
+
+			BindStatManagers();
+		}
+
+		MulticastOnUIWidgetCreated();
+	}
+}
+
 
 
 
@@ -420,9 +467,7 @@ void AMainPlayerController::ServerCreateAndSyncWidget_Implementation()
 		// 실제로 위젯을 생성하는 코드 작성
 		if (!SkillShopWidget)
 		{
-			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
-			UserInterfaceWidget->AddToViewport();
-			
+
 			SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
 			if (SkillShopWidget)
 			{
@@ -451,9 +496,7 @@ void AMainPlayerController::MulticastOnWidgetCreated_Implementation()
 		SkillShopWidget = CreateWidget<UUserWidget>(this, SkillShopWidgetClass);
 		if (SkillShopWidget)
 		{
-			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
-			UserInterfaceWidget->AddToViewport();
-			
+
 			SkillShopWidget->AddToViewport();
 
 			this->SetInputMode(FInputModeGameAndUI());
@@ -477,4 +520,41 @@ void AMainPlayerController::ClientCreateAndSyncWidget_Implementation()
 	}
 }
 
+void AMainPlayerController::CreateUIWidget()
+{
+	APlayerController* MyController = UGameplayStatics::GetPlayerController(this, 0); // 현재 플레이어 컨트롤러 가져오기
 
+	if (MyController)
+	{
+		if (MyController->IsLocalController()) // 현재 컨트롤러가 로컬 플레이어인지 확인
+		{
+			UserInterfaceWidget = CreateWidget<UUserWidget>(GetWorld(), UserInterfaceWidgetClass);
+			UserInterfaceWidget->AddToViewport();
+
+			if (UserInterfaceWidget)
+			{
+				this->SetInputMode(FInputModeGameOnly());
+				this->bShowMouseCursor = false;
+
+				BindStatManagers();
+			}
+		}
+	}
+}
+
+void AMainPlayerController::OpenSkillShop()
+{
+	if (IsLocalController())
+	{
+		if (HasAuthority())
+		{
+			ServerCreateAndSyncWidget();
+
+		}
+		else if (!HasAuthority())
+		{
+			CreateSkillShopWidget();
+		}
+
+	}
+}
