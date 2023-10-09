@@ -29,14 +29,14 @@ EBTNodeResult::Type UBTTaskAttackCrystal::ExecuteTask(UBehaviorTreeComponent& Ow
 		anim = Controller->anim;
 	}
 
-	if (anim->bAttacking)
-	{
-		return EBTNodeResult::Failed;
-	}
-
 	if (me == nullptr)
 	{
 		me = Controller->me;
+	}
+
+	if (anim->bAttacking)
+	{
+		return EBTNodeResult::Failed;
 	}
 
 	anim->bAttacking = true;

@@ -2,6 +2,7 @@
 
 
 #include "EnemySpawner.h"
+#include "Enemy.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -19,7 +20,7 @@ void AEnemySpawner::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(Th_SpeedHandle, [&]()
 		{
 			ReqSpawnEnemy();
-		}, 10, false);
+		}, 3.0f, true);
 }
 
 // Called every frame
@@ -31,7 +32,15 @@ void AEnemySpawner::Tick(float DeltaTime)
 
 void AEnemySpawner::SpawnEnemy()
 {
-	//Weapon = GetWorld()->SpawnActor<AWeapon>(AWeapon::StaticClass(), FVector(0, 0, 0), FRotator::ZeroRotator);
+	AEnemy* SpawnEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, GetActorLocation(), GetActorRotation());
+	if (!SpawnEnemy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AEnemySpawner::SpawnEnemy : not spawn Enemy"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy it"));
+	}
 }
 
 void AEnemySpawner::ReqSpawnEnemy_Implementation()
