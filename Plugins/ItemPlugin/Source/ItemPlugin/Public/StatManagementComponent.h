@@ -54,13 +54,13 @@ public:
 
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_CurHp)
-	float CurHp = 0.0f;
+	float CurHp = 100.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MaxHp)
 	float MaxHp = 100.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurHp)
-	float CurMp = 0.0f;
+	float CurMp = 100.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MaxMp)
 	float MaxMp = 100.0f;
