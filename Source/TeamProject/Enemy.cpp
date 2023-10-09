@@ -8,11 +8,14 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DropItemActor.h"
+#include <Components/CapsuleComponent.h>
+#include "Engine/World.h"
 
 
 // Sets default values
 AEnemy::AEnemy()
 {
+	
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	// 추후 false 수정 예정
 	PrimaryActorTick.bCanEverTick = true;
@@ -68,15 +71,39 @@ void AEnemy::Die()
 {
 	
 	AIController = Cast<AEnemyAIController>(GetController());
+	if (AIController == nullptr)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("AEnemy::Die : not Find Controller"))
+		return;
+	}
 
-	AIController->GetBlackboardComponent()->SetValueAsEnum(AEnemyAIController::State, static_cast<uint8>(EEnemyState::MoveCrystal));
 	AIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bLive"), false);
 
 	ADropItemActor* Item = GetWorld()->SpawnActor<ADropItemActor>(DropItem, this->GetActorLocation(), this->GetActorRotation());
 
-	GetMesh()->SetCollisionProfileName("IgnoreOnlyPawn");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AEnemy::DestoryCharactor, 5.0f , false);
 
 	ReqPlayAnimMontage(DieMontage);
+}
+
+void AEnemy::DestoryCharactor()
+{
+	FTimerHandle TimerHandle;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AEnemy::DestoryCharactor, 0.1f, false);
+
+	FVector p0 = GetActorLocation();
+	FVector vt = FVector::DownVector * 50.0f * 0.1f;
+	FVector p = p0 + vt;
+	SetActorLocation(p);
+
+	if (p.Z < -200.0f)
+	{
+		Destroy();
+	}
 }
 
 
@@ -96,6 +123,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 			if (Tag != "Player")
 			{
 				return 0.0f;
+
 			}
 		}
 	}
@@ -104,11 +132,7 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 		UE_LOG(LogTemp, Warning, TEXT("AEnemy::TakeDamage not has EventInstigator"));
 	}
 
-	
-
 	UpdateHp(DamageAmount * -1);
-
-	UE_LOG(LogTemp, Warning, TEXT("has Damage = %f"), DamageAmount);
 
 	return DamageAmount;
 }
@@ -119,7 +143,7 @@ void AEnemy::UpdateHp(float Amount)
 
 	CurHp = FMath::Clamp(CurHp, 0.0f, MaxHp);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy CurHP = %f"), CurHp);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy HP = %f"), CurHp);
 
 	if (CurHp <= 0)
 	{
@@ -149,8 +173,6 @@ void AEnemy::UpdateHp(float Amount)
 
 void AEnemy::ReqPlayAnimMontage_Implementation(UAnimMontage* animMontage)
 {
-	UE_LOG(LogTemp,Warning,TEXT("ReqPlayAnimMontage"));
-
 	ClientPlayAnimMontage(animMontage);
 }
 
@@ -158,4 +180,3 @@ void AEnemy::ClientPlayAnimMontage_Implementation(UAnimMontage* animMontage)
 {
 	this->PlayAnimMontage(animMontage);
 }
-

@@ -18,7 +18,7 @@ void UEnemyAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
     FVector TraceEnd = MeshComp->GetSocketLocation(Socket); // TraceDistance를 원하는 길이로 설정하세요.
 
     // 스피어 트레이스 반지름
-    float TraceRadius = 50.0f; // 원하는 스피어 반지름으로 설정하세요.
+    float TraceRadius = 75.0f; // 원하는 스피어 반지름으로 설정하세요.
 
     // 스피어 트레이스 결과를 저장할 변수
     FHitResult HitResult;
@@ -47,11 +47,26 @@ void UEnemyAttackNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
         AActor* HitActor = HitResult.GetActor();
         HitLocation = HitResult.ImpactPoint;
 
-        UE_LOG(LogTemp, Warning, TEXT("apply Damage"));
+       TArray<FName> ActorTags = HitActor->Tags;
+        for (FName Tag : ActorTags)
+        {
+            if (Tag == "Player" || Tag == "Crystal")
+            {
+                UE_LOG(LogTemp, Warning, TEXT("apply Damage"));
 
-        AEnemy* OwnChar = Cast<AEnemy>(MeshComp->GetOwner());
+                AEnemy* OwnChar = Cast<AEnemy>(MeshComp->GetOwner());
 
-        UGameplayStatics::ApplyDamage(HitActor, OwnChar->Damage, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+                UGameplayStatics::ApplyDamage(HitActor, OwnChar->Damage, OwnChar->GetController(), OwnChar, UDamageType::StaticClass());
+
+                UE_LOG(LogTemp, Warning, TEXT("Enemy Apply Damage %f"), OwnChar->Damage);
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        
 
         // ApplyDamage
         // 여기에서 충돌한 객체와 위치에 대한 처리를 수행할 수 있습니다.
