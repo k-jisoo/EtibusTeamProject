@@ -31,4 +31,7 @@ public:
 	FTimerHandle Th_ProcessBeginOverlap;
 
 	AActor* Target;
+
+	UFUNCTION()
+	virtual void EndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 };

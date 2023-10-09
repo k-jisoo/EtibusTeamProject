@@ -88,6 +88,12 @@ void APassiveSkillDefenseArea::ApplySkillDamage()
 	UE_LOG(LogClass, Warning, TEXT("ApplyDamage"));
 
 	// 틱데미지 구현
-	/*FTimerManager& timerManager = GetWorld()->GetTimerManager();
-	timerManager.SetTimer(Th_ProcessBeginOverlap, this, &APassiveSkillDefenseArea::ApplySkillDamage, 0.5f, false);*/
+	FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	timerManager.SetTimer(Th_ProcessBeginOverlap, this, &APassiveSkillDefenseArea::ApplySkillDamage, 0.5f, true);
+}
+
+void APassiveSkillDefenseArea::EndOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	timerManager.ClearTimer(Th_ProcessBeginOverlap);
 }

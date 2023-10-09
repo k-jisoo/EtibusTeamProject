@@ -199,6 +199,22 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void ServerCreateAndSyncWidget();
 
+	// 클라이언트에서 위젯을 생성하고 서버와 동기화하는 함수
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ClientCreateAndSyncUIWidget();
+
+	// 위젯이 생성되었음을 클라이언트에 동기화하는 멀티캐스트 RPC 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnUIWidgetCreated();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void ServerCreateAndSyncUIWidget();
+
+	UFUNCTION()
+	void CreateUIWidget();
+
+	UFUNCTION()
+	void OpenSkillShop();
 
 	FTimerHandle th_BindMyStatManager;
 };
