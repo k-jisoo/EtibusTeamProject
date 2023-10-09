@@ -48,8 +48,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyOption)
 	float Speed = 200.0f;
 
-	float AttackRangeByCrystal;
-
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")

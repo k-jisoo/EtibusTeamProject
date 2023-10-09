@@ -13,6 +13,6 @@ UAnimNotifyEnemyAttackEnd::UAnimNotifyEnemyAttackEnd()
 
 void UAnimNotifyEnemyAttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-
+	
 }
 

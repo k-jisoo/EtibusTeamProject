@@ -46,8 +46,6 @@ EBTNodeResult::Type UBTTackAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	anim->bAttacking = true;
 
-	UE_LOG(LogTemp, Warning, TEXT("UBTTackAttack::ExecuteTask Attack!"));
-
 	me->Attack();
 
 	return EBTNodeResult::Succeeded;
